@@ -54,7 +54,8 @@
   (projectile-global-mode))
 
 (use-package magit
-  :ensure t)
+  :ensure t
+  :bind ("C-c m s" . magit-status))
 
 (use-package company
   :ensure t
