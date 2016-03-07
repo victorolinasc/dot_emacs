@@ -1,3 +1,6 @@
 backups/
 auto-save-list/
 elpa/
+
+projectile-bookmarks.eld
+ido.last

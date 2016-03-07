@@ -4,15 +4,57 @@
 ;;; Emacs initialization and configuration
 
 ;;; Code:
-
-;; Added by Package.el.  This must come before configurations of
-;; installed packages.  Don't delete this line.  If you don't want it,
-;; just comment it out by adding a semicolon to the start of the line.
-;; You may delete these explanatory comments.
 (package-initialize)
 
 (load-file "~/.emacs.d/lisp/simple-config.el")
 (load-file "~/.emacs.d/lisp/config-use-package.el")
+
+(use-package vc
+  :ensure t)
+
+(use-package restclient
+  :ensure t)
+
+(use-package window-numbering
+  :ensure t
+  :config
+  (window-numbering-mode))
+
+(use-package spacemacs-theme
+  :ensure t
+  :init
+  (load-theme 'spacemacs-dark))
+
+(use-package spaceline
+  :ensure t
+  :init
+  (setq powerline-height '35)
+  :config
+  (require 'spaceline-config)
+  (spaceline-spacemacs-theme))
+
+(use-package markdown-mode
+  :ensure t
+  :mode ("\\.md\\'" . gfm-mode))
+
+(use-package flx-ido
+  :ensure t
+  :init
+  ;; disable ido faces to see flx highlights.
+  (setq ido-enable-flex-matching t)
+  (setq ido-use-faces nil)
+  :config
+  (ido-mode t)
+  (ido-everywhere t)
+  (flx-ido-mode t))
+
+(use-package projectile
+  :ensure t
+  :config
+  (projectile-global-mode))
+
+(use-package magit
+  :ensure t)
 
 (use-package company
   :ensure t
@@ -35,12 +77,14 @@
   :config
   (global-flycheck-mode))
 
-(use-package elixir-mode
-  :ensure t)
-
 (use-package alchemist
   :ensure t
   :bind ("C-c C-r" . alchemist-mix-compile))
+
+(use-package elixir-mode
+  :ensure t
+  :init
+  (add-hook 'elixir-mode-hook 'alchemist-mode))
 
 (use-package yasnippet
   :ensure t

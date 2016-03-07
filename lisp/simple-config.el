@@ -20,7 +20,7 @@
 (column-number-mode 1)
 
 ;; Set default font-size
-(set-face-attribute 'default nil :height 150)
+(set-face-attribute 'default nil :height 160)
 ;; Font resizing keybinding
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
@@ -33,7 +33,7 @@
 (delete-selection-mode 1)
 
 ;; Theme
-(load-theme 'tango-dark)
+;; (load-theme 'tango-dark)
 
 ;; inhibit init buffer
 (setq inhibit-startup-screen t)
