@@ -71,7 +71,7 @@
 (use-package ox-reveal
   :ensure t
   :init
-  (setq org-reveal-root "file:///~/.emacs.d/vendor/reveal.js"))
+  (setq org-reveal-root "file:///home/victornascimento/.emacs.d/vendor/reveal.js"))
 
 (use-package flycheck
   :ensure t

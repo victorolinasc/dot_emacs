@@ -15,6 +15,9 @@
 ;; Backup settings
 (setq backup-directory-alist `(("." . "~/.emacs.d/backups")))
 
+;; No tabs by default
+(setq-default indent-tabs-mode nil)
+
 ;; line and column number
 (global-linum-mode t)
 (column-number-mode 1)
