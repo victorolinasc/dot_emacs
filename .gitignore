@@ -1,6 +1,8 @@
 backups/
 auto-save-list/
 elpa/
+eshell/history
+eshell/lastdir
 
 projectile-bookmarks.eld
 ido.last

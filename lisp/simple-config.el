@@ -5,8 +5,8 @@
 
 ;;; Code:
 
-(setq custom-file "~/.emacs.d/lisp/custom.el")
-(load custom-file)
+(load "~/.emacs.d/lisp/custom.el")
+(load "~/.emacs.d/lisp/custom-eshell.el")
 
 ;; Init in full frame
 (custom-set-variables
@@ -35,9 +35,6 @@
 ;; Activates delete selection mode
 (delete-selection-mode 1)
 
-;; Theme
-;; (load-theme 'tango-dark)
-
 ;; inhibit init buffer
 (setq inhibit-startup-screen t)
 
@@ -46,4 +43,6 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
-;;; olinasc-simple.el ends here
+;; global git commit mode
+(global-git-commit-mode)
+;;; simple-config.el ends here

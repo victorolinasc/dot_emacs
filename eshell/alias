@@ -1,0 +1,4 @@
+alias ll ls -la $1
+alias gst git status
+alias ff find-file $1
+alias d dired $1
