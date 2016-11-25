@@ -1,4 +1,4 @@
-alias ll ls -la $1
-alias gst git status
-alias ff find-file $1
+alias gst magit-status
 alias d dired $1
+alias ff find-file $1
+alias ll ls -la $1
