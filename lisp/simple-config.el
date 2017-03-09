@@ -45,4 +45,9 @@
 
 ;; global git commit mode
 (global-git-commit-mode)
+
+;; Dired config
+(setq dired-listing-switches "-laGh1v --group-directories-first")
+
+
 ;;; simple-config.el ends here

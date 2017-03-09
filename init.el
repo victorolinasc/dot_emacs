@@ -108,6 +108,27 @@
 (use-package yaml-mode
   :ensure t)
 
+;; JavaScript configuration
+(use-package js2-mode
+  :ensure t
+  :init
+  (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
+
+(use-package tern
+  :ensure t
+  :init
+  (add-hook 'js2-mode-hook 'tern-mode))
+
+(use-package company-tern
+  :ensure t
+  :config
+  (add-to-list 'company-backends 'company-tern))
+
+(use-package editorconfig
+  :ensure t
+  :config
+  (editorconfig-mode 1))
+
 ;; ATTENTION: do not ask for confirmation for elixir sources
 (defun do-not-ask-for-confirmation-for-elixir-evaluate (lang body)
   "Evaluate LANG BODY without confirmation."
@@ -136,4 +157,3 @@
      (ditaa . t))))
 
 (provide 'init)
-;;; init.el ends here
