@@ -5,15 +5,17 @@
 
 ;;; Code:
 
-(load "~/.emacs.d/lisp/custom.el")
-(load "~/.emacs.d/lisp/custom-eshell.el")
+(load (expand-file-name "lisp/custom.el" user-emacs-directory))
+(load (expand-file-name "lisp/custom-eshell.el" user-emacs-directory))
 
 ;; Init in full frame
 (custom-set-variables
  '(initial-frame-alist (quote ((fullscreen . maximized)))))
 
 ;; Backup settings
-(setq backup-directory-alist `(("." . "~/.emacs.d/backups")))
+(setq backup-directory-alist
+      `(("." . ,(expand-file-name
+                 (concat user-emacs-directory "backups")))))
 
 ;; No tabs by default
 (setq-default indent-tabs-mode nil)
@@ -23,11 +25,14 @@
 (column-number-mode 1)
 
 ;; Set default font-size
-(set-face-attribute 'default nil :height 160)
+(set-face-attribute 'default nil :height 150)
 ;; Font resizing keybinding
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 ;; C-x C-0 restores the default font size
+
+;; lines are 80 now
+(setq fill-column 80)
 
 ;; Changes all yes/no questions to y/n type
 (fset 'yes-or-no-p 'y-or-n-p)

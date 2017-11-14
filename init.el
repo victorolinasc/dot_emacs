@@ -6,13 +6,15 @@
 ;;; Code:
 (package-initialize)
 
-(load-file "~/.emacs.d/lisp/simple-config.el")
-(load-file "~/.emacs.d/lisp/config-use-package.el")
+(load-file (expand-file-name  "lisp/simple-config.el" user-emacs-directory))
+(load-file (expand-file-name "lisp/config-use-package.el" user-emacs-directory))
+
+(use-package exec-path-from-shell
+  :ensure t
+  :config
+  (exec-path-from-shell-initialize))
 
 (use-package vc
-  :ensure t)
-
-(use-package restclient
   :ensure t)
 
 (use-package window-numbering
@@ -80,7 +82,12 @@
 
 (use-package alchemist
   :ensure t
-  :bind ("C-c C-r" . alchemist-mix-compile))
+  :bind ("C-c C-r" . alchemist-mix-compile)
+  :init
+  (setq alchemist-execute-command (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
+  (setq alchemist-compile-command (substitute-in-file-name "$HOME/.asdf/shims/elixirc"))
+  (setq alchemist-mix-command (substitute-in-file-name "$HOME/.asdf/shims/mix"))
+  (setq alchemist-iex-program-name (substitute-in-file-name "$HOME/.asdf/shims/iex"))
 
 (use-package elixir-mode
   :ensure t
@@ -114,25 +121,10 @@
   :init
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
 
-(use-package tern
-  :ensure t
-  :init
-  (add-hook 'js2-mode-hook 'tern-mode))
-
-(use-package company-tern
-  :ensure t
-  :config
-  (add-to-list 'company-backends 'company-tern))
-
 (use-package editorconfig
   :ensure t
   :config
   (editorconfig-mode 1))
-
-;; ATTENTION: do not ask for confirmation for elixir sources
-(defun do-not-ask-for-confirmation-for-elixir-evaluate (lang body)
-  "Evaluate LANG BODY without confirmation."
-  (not (string= lang "elixir")))
 
 (use-package org
   :ensure t
@@ -143,7 +135,7 @@
 	org-src-tab-acts-natively t ;; you want this to have completion in blocks
 	org-hide-emphasis-markers t ;; to hide the *,=, or / markers
 	org-pretty-entities t       ;; to have \alpha, \to and others display as utf8
-	org-ditaa-jar-path "~/.emacs.d/vendor/ditaa0_9.jar"
+	org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory)
 	org-confirm-babel-evaluate 'do-not-ask-for-confirmation-for-elixir-evaluate
 	)
   :config
@@ -157,3 +149,21 @@
      (ditaa . t))))
 
 (provide 'init)
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
+ '(initial-frame-alist (quote ((fullscreen . maximized))))
+ '(package-selected-packages
+   (quote
+    (exec-path-from-shell yasnippet company markdown-mode spacemacs-theme window-numbering spaceline projectile flx-ido restclient yaml-mode use-package ox-reveal ob-elixir neotree multiple-cursors magit flycheck erlang elixir-yasnippets alchemist))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
