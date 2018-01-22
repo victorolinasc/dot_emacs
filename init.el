@@ -141,26 +141,17 @@
   :config
   (editorconfig-mode 1))
 
-(use-package langtool
-  :ensure t
-  :init
-  (setq langtool-language-tool-jar
-        (expand-file-name
-         "vendor/LanguageTool-3.9/languagetool-commandline.jar"
-         user-emacs-directory)))
-
 (use-package org
   :ensure t
   :init
   (setq org-hide-leading-stars t
-	org-list-allow-alphabetical t
-	org-src-fontify-natively t  ;; you want this to activate coloring in blocks
-	org-src-tab-acts-natively t ;; you want this to have completion in blocks
-	org-hide-emphasis-markers t ;; to hide the *,=, or / markers
-	org-pretty-entities t       ;; to have \alpha, \to and others display as utf8
-	org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory)
-	org-confirm-babel-evaluate 'do-not-ask-for-confirmation-for-elixir-evaluate
-	)
+        org-list-allow-alphabetical t
+        org-src-fontify-natively t  ;; you want this to activate coloring in blocks
+        org-src-tab-acts-natively t ;; you want this to have completion in blocks
+        org-hide-emphasis-markers t ;; to hide the *,=, or / markers
+        org-pretty-entities t       ;; to have \alpha, \to and others display as utf8
+        org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory)
+        org-confirm-babel-evaluate 'do-not-ask-for-confirmation-for-elixir-evaluate)
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages

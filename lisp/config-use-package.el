@@ -7,19 +7,21 @@
 
 (require 'package)
 (setq package-enable-at-startup nil)
+
 (add-to-list 'package-archives
              '("melpa" . "https://melpa.org/packages/"))
 
 (package-initialize)
 
-;; Bootstrap `use-package'
-(unless (package-installed-p 'use-package)
-  (package-refresh-contents)
-  (package-install 'use-package))
+; fetch the list of packages available 
+(unless package-archive-contents
+  (package-refresh-contents))
 
-(eval-when-compile
-  (require 'use-package))
-(require 'diminish)
+(dolist (package '(use-package diminish))
+  (unless (package-installed-p package)
+    (package-install package))
+  (require package))
+
 (require 'bind-key)
 
 (provide 'config-use-package)

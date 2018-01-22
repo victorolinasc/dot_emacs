@@ -90,7 +90,7 @@
 (tool-bar-mode -1)
 
 ;; global git commit mode
-(global-git-commit-mode)
+;; (global-git-commit-mode)
 
 ;; Dired config
 (setq dired-listing-switches "-laGh1v --group-directories-first")
