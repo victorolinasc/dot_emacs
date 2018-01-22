@@ -6,13 +6,25 @@
 ;;; Code:
 (package-initialize)
 
-(load-file (expand-file-name  "lisp/simple-config.el" user-emacs-directory))
+(load-file (expand-file-name "lisp/simple-config.el" user-emacs-directory))
 (load-file (expand-file-name "lisp/config-use-package.el" user-emacs-directory))
+(load-file (expand-file-name "lisp/asdf.el" user-emacs-directory))
 
 (use-package exec-path-from-shell
   :ensure t
   :config
   (exec-path-from-shell-initialize))
+
+(use-package alert
+  :ensure t)
+
+(use-package diminish
+  :ensure t)
+
+(use-package move-text
+  :ensure t
+  :config
+  (move-text-default-bindings))
 
 (use-package vc
   :ensure t)
@@ -22,18 +34,18 @@
   :config
   (window-numbering-mode))
 
-(use-package spacemacs-theme
+(use-package smartparens
   :ensure t
-  :init
-  (load-theme 'spacemacs-dark))
-
-(use-package spaceline
-  :ensure t
-  :init
-  (setq powerline-height '35)
+  :diminish smartparens-mode
   :config
-  (require 'spaceline-config)
-  (spaceline-spacemacs-theme))
+  (require 'smartparens-config)
+  (smartparens-global-mode)
+  (show-smartparens-global-mode))
+
+(use-package monokai-theme
+  :ensure t
+  :init
+  (load-theme 'monokai t))
 
 (use-package markdown-mode
   :ensure t
@@ -61,6 +73,7 @@
 
 (use-package company
   :ensure t
+  :diminish company-mode
   :bind ("M-/" . company-complete)
   :defer t
   :config
@@ -73,7 +86,8 @@
 (use-package ox-reveal
   :ensure t
   :init
-  (setq org-reveal-root "file:///home/victornascimento/.emacs.d/vendor/reveal.js"))
+  (setq org-reveal-root
+        (expand-file-name "vendor/reveal.js" user-emacs-directory)))
 
 (use-package flycheck
   :ensure t
@@ -84,15 +98,15 @@
   :ensure t
   :bind ("C-c C-r" . alchemist-mix-compile)
   :init
-  (setq alchemist-execute-command (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
-  (setq alchemist-compile-command (substitute-in-file-name "$HOME/.asdf/shims/elixirc"))
-  (setq alchemist-mix-command (substitute-in-file-name "$HOME/.asdf/shims/mix"))
-  (setq alchemist-iex-program-name (substitute-in-file-name "$HOME/.asdf/shims/iex"))
+  (setq alchemist-goto-erlang-source-dir
+        (expand-file-name "otp_src" (grab-asdf-plugin-version-path "erlang"))
+        alchemist-goto-elixir-source-dir (grab-asdf-plugin-version-path "elixir")))
 
 (use-package elixir-mode
   :ensure t
   :init
-  (add-hook 'elixir-mode-hook 'alchemist-mode))
+  (add-hook 'elixir-mode-hook 'alchemist-mode)
+  (add-hook 'elixir-mode-hook 'flyspell-prog-mode))
 
 (use-package yasnippet
   :ensure t
@@ -123,8 +137,17 @@
 
 (use-package editorconfig
   :ensure t
+  :diminish editorconfig-mode
   :config
   (editorconfig-mode 1))
+
+(use-package langtool
+  :ensure t
+  :init
+  (setq langtool-language-tool-jar
+        (expand-file-name
+         "vendor/LanguageTool-3.9/languagetool-commandline.jar"
+         user-emacs-directory)))
 
 (use-package org
   :ensure t
@@ -148,22 +171,9 @@
      (java . t)
      (ditaa . t))))
 
+;; Local Variables:
+;; byte-compile-warnings: (not free-vars)
+;; End:
+
 (provide 'init)
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("bffa9739ce0752a37d9b1eee78fc00ba159748f50dc328af4be661484848e476" default)))
- '(initial-frame-alist (quote ((fullscreen . maximized))))
- '(package-selected-packages
-   (quote
-    (exec-path-from-shell yasnippet company markdown-mode spacemacs-theme window-numbering spaceline projectile flx-ido restclient yaml-mode use-package ox-reveal ob-elixir neotree multiple-cursors magit flycheck erlang elixir-yasnippets alchemist))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;;; init.el ends here
