@@ -108,4 +108,7 @@
 
 (add-hook 'after-make-frame-functions 'set-cursor-hook)
 
+;; Maximize on start
+(add-to-list 'default-frame-alist '(fullscreen . maximized))
+
 ;;; simple-config.el ends here

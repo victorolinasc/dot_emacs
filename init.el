@@ -102,11 +102,18 @@
         (expand-file-name "otp_src" (grab-asdf-plugin-version-path "erlang"))
         alchemist-goto-elixir-source-dir (grab-asdf-plugin-version-path "elixir")))
 
+(use-package mix-format
+  :load-path "lisp/mix-format"
+  :init
+  (setq mixfmt-elixir (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
+  (setq mixfmt-mix (substitute-in-file-name "$HOME/.asdf/shims/mix")))
+
 (use-package elixir-mode
   :ensure t
   :init
   (add-hook 'elixir-mode-hook 'alchemist-mode)
-  (add-hook 'elixir-mode-hook 'flyspell-prog-mode))
+  (add-hook 'elixir-mode-hook 'flyspell-prog-mode)
+  (add-hook 'before-save-hook 'mix-format-before-save))
 
 (use-package yasnippet
   :ensure t
