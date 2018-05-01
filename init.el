@@ -47,6 +47,9 @@
   :init
   (load-theme 'monokai t))
 
+(use-package rainbow-mode
+  :ensure t)
+
 (use-package markdown-mode
   :ensure t
   :mode ("\\.md\\'" . gfm-mode))
@@ -83,12 +86,6 @@
   :ensure t
   :defer t)
 
-(use-package ox-reveal
-  :ensure t
-  :init
-  (setq org-reveal-root
-        (expand-file-name "vendor/reveal.js" user-emacs-directory)))
-
 (use-package flycheck
   :ensure t
   :config
@@ -102,18 +99,18 @@
         (expand-file-name "otp_src" (grab-asdf-plugin-version-path "erlang"))
         alchemist-goto-elixir-source-dir (grab-asdf-plugin-version-path "elixir")))
 
-(use-package mix-format
+(use-package elixir-format
   :load-path "lisp/mix-format"
   :init
-  (setq mixfmt-elixir (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
-  (setq mixfmt-mix (substitute-in-file-name "$HOME/.asdf/shims/mix")))
+  (setq elixir-format-elixir-path (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
+  (setq elixir-format-mix-path (substitute-in-file-name "$HOME/.asdf/shims/mix")))
 
 (use-package elixir-mode
   :ensure t
   :init
   (add-hook 'elixir-mode-hook 'alchemist-mode)
   (add-hook 'elixir-mode-hook 'flyspell-prog-mode)
-  (add-hook 'before-save-hook 'mix-format-before-save))
+  (add-hook 'before-save-hook 'elixir-format-before-save))
 
 (use-package yasnippet
   :ensure t
@@ -147,6 +144,23 @@
   :diminish editorconfig-mode
   :config
   (editorconfig-mode 1))
+
+(use-package lsp-mode
+  :ensure t
+  :init
+  (add-hook 'prog-mode-hook 'lsp-mode))
+
+(use-package lsp-ui
+  :ensure t
+  :after lsp-mode
+  :config
+  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
+
+(use-package lsp-javascript-typescript
+  :ensure t
+  :init
+  (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
+  (add-hook 'js2-mode-hook #'lsp-javascript-typescript-enable))
 
 (use-package org
   :ensure t
