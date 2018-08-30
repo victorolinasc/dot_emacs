@@ -3,6 +3,10 @@ auto-save-list/
 elpa/
 eshell/history
 eshell/lastdir
+.cache/
+url/
 
+alchemist-project-settings.el
+recentf
 projectile-bookmarks.eld
 ido.last

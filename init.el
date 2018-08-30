@@ -15,24 +15,59 @@
   :config
   (exec-path-from-shell-initialize))
 
-(use-package alert
-  :ensure t)
-
 (use-package diminish
   :ensure t)
+
+(use-package feature-mode
+  :ensure t)
+
+(use-package helpful
+  :ensure t
+  :bind
+  ("C-h f" . helpful-callable)
+  ("C-h v" . helpful-variable)
+  ("C-h k" . helpful-key)
+  ("C-h F" . helpful-function)
+  ("C-h C" . helpful-command))
+
+(use-package counsel
+  :ensure t
+  :diminish t
+  :config
+  (setq ivy-use-virtual-buffers t
+        ivy-count-format "(%d/%d) ")
+  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
+  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
+  :init
+  (ivy-mode 1)
+  :bind
+  ("C-c C-r" . ivy-resume)
+  ("C-x C-f" . counsel-find-file)
+  ("C-s" . swiper)
+  ("C-x b" . ivy-switch-buffer))
+
+(use-package ivy
+  :diminish t)
+
+(use-package dired
+  :defer t
+  :config
+  (setq
+   dired-auto-revert-buffer t           ; Revert on re-visiting
+   ;; Better dired flags: `-l' is mandatory, `-a' shows all files, `-h' uses
+   ;; human-readable sizes, and `-F' appends file-type classifiers to file names
+   ;; (for better highlighting)
+   dired-listing-switches "-laFGh1v --group-directories-first"
+   dired-ls-F-marks-symlinks t          ; -F marks links with @
+   ;; Inhibit prompts for simple recursive operations
+   dired-recursive-copies 'always
+   ;; Auto-copy to other Dired split window
+   dired-dwim-target t))
 
 (use-package move-text
   :ensure t
   :config
   (move-text-default-bindings))
-
-(use-package vc
-  :ensure t)
-
-(use-package window-numbering
-  :ensure t
-  :config
-  (window-numbering-mode))
 
 (use-package smartparens
   :ensure t
@@ -48,27 +83,43 @@
   (load-theme 'monokai t))
 
 (use-package rainbow-mode
+  :diminish rainbow-mode
   :ensure t)
 
 (use-package markdown-mode
   :ensure t
   :mode ("\\.md\\'" . gfm-mode))
 
-(use-package flx-ido
-  :ensure t
-  :init
-  ;; disable ido faces to see flx highlights.
-  (setq ido-enable-flex-matching t)
-  (setq ido-use-faces nil)
-  :config
-  (ido-mode t)
-  (ido-everywhere t)
-  (flx-ido-mode t))
-
 (use-package projectile
   :ensure t
   :config
-  (projectile-global-mode))
+  (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
+  (setq projectile-completion-system 'ivy)
+  (projectile-mode +1))
+
+(use-package window-numbering
+  :ensure t
+  :config
+  (window-numbering-mode))
+
+(use-package treemacs
+  :ensure t
+  :defer t
+  :config
+  (progn
+    (treemacs-follow-mode t)
+    (treemacs-filewatch-mode t)
+    (pcase (cons (not (null (executable-find "git")))
+                 (not (null (executable-find "python3"))))
+      (`(t . t)
+       (treemacs-git-mode 'extended))
+      (`(t . _)
+       (treemacs-git-mode 'simple))))
+  :bind ("C-x t t"   . treemacs))
+
+(use-package treemacs-projectile
+  :after treemacs projectile
+  :ensure t)
 
 (use-package magit
   :ensure t
@@ -82,6 +133,10 @@
   :config
   (global-company-mode))
 
+(use-package restclient
+  :defer t
+  :ensure t)
+
 (use-package ob-elixir
   :ensure t
   :defer t)
@@ -91,44 +146,67 @@
   :config
   (global-flycheck-mode))
 
-(use-package alchemist
+(use-package company-quickhelp
+  :after (company)
   :ensure t
-  :bind ("C-c C-r" . alchemist-mix-compile)
+  :init
+  (setq company-quickhelp-delay 1)
+  :config
+  (company-quickhelp-mode))
+
+(use-package lsp-mode
+  :ensure t)
+
+(use-package lsp-ui
+  :after (lsp-mode)
+  :init
+  (setq lsp-ui-doc-enable nil)
+  :ensure t)
+
+(use-package company-lsp
+  :after (company)
+  :config
+  (push 'company-lsp company-backends)
+  :ensure t)
+
+(use-package alchemist
+  :after (elixir-mode)
+  :load-path "../.alchemist" ; Must first clone https://github.com/Trevoke/alchemist.el ont ~/.alchemist
+  :config
+  (require 'alchemist-elixir-ls)
+  (require 'alchemist-goto)
+  (require 'alchemist)
   :init
   (setq alchemist-goto-erlang-source-dir
         (expand-file-name "otp_src" (grab-asdf-plugin-version-path "erlang"))
         alchemist-goto-elixir-source-dir (grab-asdf-plugin-version-path "elixir")))
 
-(use-package elixir-format
-  :load-path "lisp/mix-format"
-  :init
-  (setq elixir-format-elixir-path (substitute-in-file-name "$HOME/.asdf/shims/elixir"))
-  (setq elixir-format-mix-path (substitute-in-file-name "$HOME/.asdf/shims/mix")))
-
 (use-package elixir-mode
   :ensure t
   :init
+  (add-hook 'elixir-mode-hook
+            (lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
   (add-hook 'elixir-mode-hook 'alchemist-mode)
-  (add-hook 'elixir-mode-hook 'flyspell-prog-mode)
-  (add-hook 'before-save-hook 'elixir-format-before-save))
+  (add-hook 'elixir-mode-hook 'flyspell-prog-mode))
 
 (use-package yasnippet
   :ensure t
   :defer t)
 
-(use-package neotree
+;; On a clean build, we need to call 'all-the-icons-install-fonts' function
+(use-package all-the-icons
   :ensure t
-  :config
-  (global-set-key [f8] 'neotree-toggle))
-
-(use-package elixir-yasnippets
-  :ensure t)
+  :defer t)
 
 (use-package erlang
+  :defer t
   :ensure t)
 
 (use-package multiple-cursors
-  :ensure t)
+  :ensure t
+  :bind
+  ("C->" . 'mc/mark-next-like-this)
+  ("C-<" . 'mc/mark-previous-like-this))
 
 (use-package yaml-mode
   :ensure t)
@@ -145,23 +223,6 @@
   :config
   (editorconfig-mode 1))
 
-(use-package lsp-mode
-  :ensure t
-  :init
-  (add-hook 'prog-mode-hook 'lsp-mode))
-
-(use-package lsp-ui
-  :ensure t
-  :after lsp-mode
-  :config
-  (add-hook 'lsp-mode-hook 'lsp-ui-mode))
-
-(use-package lsp-javascript-typescript
-  :ensure t
-  :init
-  (add-hook 'js-mode-hook #'lsp-javascript-typescript-enable)
-  (add-hook 'js2-mode-hook #'lsp-javascript-typescript-enable))
-
 (use-package org
   :ensure t
   :init
@@ -171,13 +232,13 @@
         org-src-tab-acts-natively t ;; you want this to have completion in blocks
         org-hide-emphasis-markers t ;; to hide the *,=, or / markers
         org-pretty-entities t       ;; to have \alpha, \to and others display as utf8
+        org-export-with-sub-superscripts nil ;; Disable sub and superscripts
         org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory)
         org-confirm-babel-evaluate 'do-not-ask-for-confirmation-for-elixir-evaluate)
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
    '((emacs-lisp . t)
-     (sh . t)
      (elixir . t)
      (org . t)
      (java . t)

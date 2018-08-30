@@ -1,7 +1,7 @@
-;;; olinasc-simple --- Summary:
+;;; custom-eshell --- Summary:
 
 ;;; Commentary:
-;;; Simple configuration of Emacs built in functions
+;;; Customizations for the eshell
 
 ;;; Code:
 (setq eshell-history-size 1024)
@@ -66,3 +66,5 @@ PWD is not in a git repo (or the git command is not found)."
          (propertize "# " 'face 'default))))
 
 (setq eshell-highlight-prompt nil)
+(provide 'custom-eshell)
+;;; custom-eshell.el ends here

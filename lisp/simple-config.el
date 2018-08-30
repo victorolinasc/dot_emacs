@@ -36,6 +36,8 @@
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
+(setq create-lockfiles nil)
+
 
 ;; UTF-8 all the things
 (prefer-coding-system 'utf-8)
@@ -62,14 +64,20 @@
                  "%b"))))
 
 ;; Set default font-size
-(set-face-attribute 'default nil :height 150)
+(set-face-attribute 'default nil
+                    :family "Source Code Pro" :height 150)
+(set-face-attribute 'variable-pitch nil
+                    :family "Fira Sans" :height 150 :weight 'regular)
+
+(bind-key "C-c t V" #'variable-pitch-mode)
+
 ;; Font resizing keybinding
 (global-set-key (kbd "C-+") 'text-scale-increase)
 (global-set-key (kbd "C--") 'text-scale-decrease)
 ;; C-x C-0 restores the default font size
 
 ;; Lines are 80 now
-(setq fill-column 80)
+(setq fill-column 100)
 
 ;; Changes all yes/no questions to y/n type
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -89,17 +97,15 @@
 (toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
+(bind-key "C-c h b" #'describe-personal-keybindings)
+
 ;; Dired config
 (setq dired-listing-switches "-laGh1v --group-directories-first")
-
-;; Hunspell checking
-(when (executable-find "hunspell")
-  (setq-default ispell-program-name "hunspell")
-  (setq ispell-really-hunspell t))
 
 ;; Ensure cursor has the same color when run on daemon or not
 (require 'frame)
 (defun set-cursor-hook (frame)
+  "Ensure cursor has the same color when run on FRAME."
   (modify-frame-parameters
    frame (list (cons 'cursor-color "DeepSkyBlue"))))
 
