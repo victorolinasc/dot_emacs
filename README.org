@@ -1,0 +1,42 @@
+* My dot files
+
+This repo is where I keep my dot files for easy bootstrapping my development environment. It is heavily geared towards Elixir development.
+
+It uses:
+
+- ~use-package~ for package management
+- ~ivy~ as the default completion/search engine
+- ~lsp-mode~ for my main programming mode (elixir through trevoke/alchemist.el)
+- ~treemacs~ for navigating projects
+- ~magit~ for magical git
+- ... and some other nicities
+
+Two things must be done for the config to work: 
+
+1. Clone https://github.com/Trevoke/alchemist.el onto ~~/.alchemist~
+2. Bootstrap Emacs once
+3. Call the function ~all-the-icons-install-fonts~ for downloading and installing the icons
+
+
+** Extras
+
+There is a emacs.desktop file on the root of the repo and a systemd unit configuration on the systemd folder. Those two are useful for starting emacs through systemd and to have an easy to use shortcut in a Linux environment.
+
+*** Installing the Emacs unit for the user on systemd
+
+Copy the unit file in this repo to ~~/.config/systemd/user/~ and enable it by typing:
+
+#+BEGIN_SRC sh
+systemctl enable --user emacs
+systemctl start --user emacs
+#+END_SRC
+
+Similarly, if you need to restart it (to load or unload something) you can do:
+
+#+BEGIN_SRC sh
+systemctl restart --user emacs
+#+END_SRC
+
+*** Use the desktop file
+
+You can easily create a shortcut in most Linux environments by dragging the desktop icon to some place. It uses ~emacsclient~ to start a GUI window.
