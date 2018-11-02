@@ -15,6 +15,12 @@
   :config
   (exec-path-from-shell-initialize))
 
+(use-package eshell
+  :config
+  (add-hook 'eshell-mode-hook (lambda () (linum-mode -1)))
+  (add-hook 'eshell-mode-hook (lambda () (exec-path-from-shell-initialize)))
+  )
+
 (use-package diminish
   :ensure t)
 
@@ -35,6 +41,7 @@
   :diminish t
   :config
   (setq ivy-use-virtual-buffers t
+        confirm-nonexistent-file-or-buffer t
         ivy-count-format "(%d/%d) ")
   (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
   (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
@@ -48,6 +55,9 @@
 
 (use-package ivy
   :diminish t)
+
+(use-package ripgrep
+  :ensure t)
 
 (use-package dired
   :defer t
@@ -118,7 +128,7 @@
   :bind ("C-x t t"   . treemacs))
 
 (use-package treemacs-projectile
-  :after treemacs projectile
+  :after (treemacs projectile)
   :ensure t)
 
 (use-package magit
@@ -155,19 +165,25 @@
   (company-quickhelp-mode))
 
 (use-package lsp-mode
+  :init (setq lsp-inhibit-message t
+              lsp-eldoc-render-all nil
+              lsp-enable-eldoc nil)
   :ensure t)
 
 (use-package lsp-ui
+  :ensure t
   :after (lsp-mode)
   :init
-  (setq lsp-ui-doc-enable nil)
-  :ensure t)
+  (setq lsp-ui-doc-enable nil))
 
 (use-package company-lsp
+  :ensure t
   :after (company)
   :config
-  (push 'company-lsp company-backends)
-  :ensure t)
+  (add-hook 'java-mode-hook (lambda () (push 'company-lsp company-backends)))
+  (setq company-lsp-enable-snippet t
+        company-lsp-cache-candidates t)
+  (push 'company-lsp company-backends))
 
 (use-package alchemist
   :after (elixir-mode)
@@ -182,12 +198,26 @@
         alchemist-goto-elixir-source-dir (grab-asdf-plugin-version-path "elixir")))
 
 (use-package elixir-mode
-  :ensure t
+  :load-path "~/dev/projects/emacs-elixir"
   :init
   (add-hook 'elixir-mode-hook
-            (lambda () (add-hook 'before-save-hook 'elixir-format nil t)))
-  (add-hook 'elixir-mode-hook 'alchemist-mode)
-  (add-hook 'elixir-mode-hook 'flyspell-prog-mode))
+          (lambda () (add-hook 'before-save-hook 'elixir-format 'local)))
+  (add-hook 'elixir-format-hook
+            (lambda ()
+              (if (projectile-project-p)
+                  (setq elixir-format-arguments
+                        (list "--dot-formatter"
+                              (concat (locate-dominating-file buffer-file-name ".formatter.exs") ".formatter.exs")))
+                (setq elixir-format-arguments nil))
+              )))
+
+(use-package tabbar
+  :ensure t
+  :init
+  (tabbar-mode)
+  :bind
+  (("<C-next>" . tabbar-forward-tab)
+   ("<C-prior>" . tabbar-backward-tab)))
 
 (use-package yasnippet
   :ensure t
@@ -222,6 +252,17 @@
   :diminish editorconfig-mode
   :config
   (editorconfig-mode 1))
+
+(use-package pass
+  :ensure t
+  :defer t)
+
+(use-package lsp-java
+  :ensure t
+  :requires (lsp-ui-flycheck lsp-ui-sideline)
+  :config
+  (add-hook 'java-mode-hook  'lsp-java-enable)
+  (add-hook 'java-mode-hook  'company-mode))
 
 (use-package org
   :ensure t

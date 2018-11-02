@@ -1,4 +1,5 @@
-alias gst magit-status
-alias d dired $1
-alias ff find-file $1
+alias stacktrace:  $*
 alias ll ls -la $1
+alias ff find-file $1
+alias d dired $1
+alias gst magit-status

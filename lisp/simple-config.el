@@ -115,7 +115,8 @@
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Custom key bindings
-(global-set-key (kbd "<f5>") 'treemacs-select-window)
+(global-set-key (kbd "<f5>") 'treemacs)
 (global-set-key (kbd "<f6>") 'flycheck-list-errors)
+(global-set-key (kbd "<f7>") 'eshell)
 
 ;;; simple-config.el ends here
