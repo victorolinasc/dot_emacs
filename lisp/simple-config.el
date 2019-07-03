@@ -5,9 +5,7 @@
 
 ;;; Code:
 (setq custom-file (expand-file-name "lisp/custom.el" user-emacs-directory))
-(load custom-file)
-
-(load (expand-file-name "lisp/custom-eshell.el" user-emacs-directory))
+(load custom-file 'noerror)
 
 ;; Init in full frame
 (custom-set-variables
@@ -22,22 +20,12 @@
 ;; Initial scratch message
 (setq initial-scratch-message "")
 
-;; Reduce the frequency of garbage collection by making it happen on
-;; each 50MB of allocated data (the default is on every 0.76MB)
-(setq gc-cons-threshold 50000000)
-
-;; Nice scrolling
-(setq scroll-margin 0
-      scroll-conservatively 100000
-      scroll-preserve-screen-position 1)
-
 ;; store all backup and autosave files in the tmp dir
 (setq backup-directory-alist
       `((".*" . ,temporary-file-directory)))
 (setq auto-save-file-name-transforms
       `((".*" ,temporary-file-directory t)))
 (setq create-lockfiles nil)
-
 
 ;; UTF-8 all the things
 (prefer-coding-system 'utf-8)
@@ -52,7 +40,7 @@
 (setq-default indent-tabs-mode nil)
 
 ;; Line and column number
-(global-linum-mode)
+(global-display-line-numbers-mode)
 (column-number-mode t)
 (size-indication-mode t)
 
@@ -76,7 +64,7 @@
 (global-set-key (kbd "C--") 'text-scale-decrease)
 ;; C-x C-0 restores the default font size
 
-;; Lines are 80 now
+;; Lines are 100 now
 (setq fill-column 100)
 
 ;; Changes all yes/no questions to y/n type
@@ -99,9 +87,6 @@
 
 (bind-key "C-c h b" #'describe-personal-keybindings)
 
-;; Dired config
-(setq dired-listing-switches "-laGh1v --group-directories-first")
-
 ;; Ensure cursor has the same color when run on daemon or not
 (require 'frame)
 (defun set-cursor-hook (frame)
@@ -118,5 +103,11 @@
 (global-set-key (kbd "<f5>") 'treemacs)
 (global-set-key (kbd "<f6>") 'flycheck-list-errors)
 (global-set-key (kbd "<f7>") 'eshell)
+
+;; Enable prettify symbols
+(global-prettify-symbols-mode)
+
+;; Use windmove default key binding
+(windmove-default-keybindings)
 
 ;;; simple-config.el ends here

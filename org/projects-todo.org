@@ -1,0 +1,7 @@
+#+OPTIONS: ^:{}
+
+* [[elisp:(org-projectile-open-project%20".emacs.d")][.emacs.d]] [0/0]
+  :PROPERTIES:
+  :CATEGORY: .emacs.d
+  :END:
+** TODO clean up my configuration

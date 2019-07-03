@@ -1,12 +1,12 @@
-backups/
-auto-save-list/
-elpa/
-eshell/history
-eshell/lastdir
-.cache/
-url/
+# Root folder
+/*
+!.gitignore
+!init.el
+!README.org
+!emacs.desktop
+!eshell/alias
+!lisp/
+!org/
+!systemd_service
+!vendor/
 
-alchemist-project-settings.el
-recentf
-projectile-bookmarks.eld
-ido.last
