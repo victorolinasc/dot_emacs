@@ -17,6 +17,12 @@
 ;; Always load newest byte code
 (setq load-prefer-newer t)
 
+;; Higher garbage collector
+(setq gc-cons-threshold (* 20 1024 1024))
+
+;; Disable bi-directional text
+(setq-default bidi-paragraph-direction 'left-to-right)
+
 ;; Initial scratch message
 (setq initial-scratch-message "")
 

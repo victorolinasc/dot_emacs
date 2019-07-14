@@ -8,7 +8,6 @@
 
 (load-file (expand-file-name "lisp/simple-config.el" user-emacs-directory))
 (load-file (expand-file-name "lisp/config-use-package.el" user-emacs-directory))
-(load-file (expand-file-name "lisp/asdf.el" user-emacs-directory))
 
 (use-package zenburn-theme
   :init (load-theme 'zenburn t)
