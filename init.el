@@ -4,22 +4,16 @@
 ;;; Emacs initialization and configuration
 
 ;;; Code:
-(package-initialize)
-
-(load-file (expand-file-name "lisp/simple-config.el" user-emacs-directory))
 (load-file (expand-file-name "lisp/config-use-package.el" user-emacs-directory))
-
-(use-package zenburn-theme
-  :init (load-theme 'zenburn t)
-  :defer t
-  :ensure t)
+(load-file (expand-file-name "lisp/simple-config.el" user-emacs-directory))
 
 (use-package exec-path-from-shell
-  :ensure t
   :config
+  (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
   (exec-path-from-shell-initialize))
 
 (use-package eshell
+  :ensure nil
   :init
   (setq eshell-visual-commands '("vi" "screen" "top" "less" "more" "lynx"
                                  "ncftp" "pine" "tin" "trn" "elm" "vim"
@@ -27,22 +21,32 @@
                                  ))
   (setq eshell-hist-ignoredups t)
   :config
-  (add-hook 'eshell-mode-hook (lambda () (linum-mode -1)))
   (add-hook 'eshell-mode-hook (lambda () (exec-path-from-shell-initialize)))
   (setenv "PAGER" "cat"))
 
 (use-package eshell-prompt-extras
-  :ensure t
-  :after eshell
+    :after eshell
   :config
   (autoload 'epe-theme-lambda "eshell-prompt-extras")
   (setq eshell-highlight-prompt nil
         eshell-prompt-function 'epe-theme-lambda))
 
-(use-package diminish
-  :ensure t)
+(use-package diminish)
+
+(use-package vterm
+  :config
+  (add-hook 'vterm-mode-hook
+          (lambda ()
+            (display-line-numbers-mode -1)))
+  :bind
+  ("C-o" . other-window))
+
+(use-package multi-vterm
+  :bind
+  ("<f2>" . multi-vterm-project))
 
 (use-package flyspell
+  :ensure nil
   :config
   (setq ispell-program-name "aspell"
         ispell-dictionary "en")
@@ -50,7 +54,6 @@
   (add-hook 'prog-mode-hook #'flyspell-prog-mode))
 
 (use-package helpful
-  :ensure t
   :bind
   ("C-h f" . helpful-callable)
   ("C-h v" . helpful-variable)
@@ -59,7 +62,6 @@
   ("C-h C" . helpful-command))
 
 (use-package counsel
-  :ensure t
   :diminish t
   :config
   (setq ivy-use-virtual-buffers t
@@ -76,24 +78,27 @@
   ("C-x b" . ivy-switch-buffer)
   ("C-x C-b" . ivy-switch-buffer))
 
-(use-package ivy
-  :diminish ivy-mode)
+(use-package ivy  :diminish ivy-mode)
 
-(use-package eldoc
-  :diminish eldoc-mode)
+(use-package prescient)
+(use-package ivy-prescient :after (counsel))
+(use-package company-prescient :after (company))
 
-(use-package autorevert
-  :diminish auto-revert-mode)
+(use-package eldoc :ensure nil  :diminish eldoc-mode)
+
+(use-package autorevert :ensure nil  :diminish auto-revert-mode)
 
 (use-package deadgrep
-  :ensure t)
+  :commands deadgrep
+  :bind
+  ("C-S-f" . deadgrep))
  
 (use-package smooth-scrolling
-  :ensure t
   :config
   (smooth-scrolling-mode 1))
 
 (use-package dired
+  :ensure nil
   :defer t
   :config
   (setq
@@ -109,35 +114,27 @@
    dired-dwim-target t))
 
 (use-package move-text
-  :ensure t
   :config
   (move-text-default-bindings))
 
 (use-package smartparens
-  :ensure t
   :diminish smartparens-mode
   :config
   (require 'smartparens-config)
   (smartparens-global-mode)
   (show-smartparens-global-mode))
 
-(use-package rainbow-mode
-  :diminish rainbow-mode
-  :ensure t)
+(use-package rainbow-mode :diminish rainbow-mode)
 
-(use-package markdown-mode
-  :ensure t
-  :mode ("\\.md\\'" . gfm-mode))
+(use-package markdown-mode :mode ("\\.md\\'" . gfm-mode))
 
 (use-package projectile
-  :ensure t
   :config
   (define-key projectile-mode-map (kbd "s-p") 'projectile-command-map)
   (setq projectile-completion-system 'ivy)
   (projectile-mode +1))
 
 (use-package treemacs
-  :ensure t
   :defer t
   :config
   (treemacs-filewatch-mode t)
@@ -145,80 +142,56 @@
   (treemacs-resize-icons 22)
   (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1))))
 
-(use-package treemacs-projectile
-  :after (treemacs projectile)
-  :ensure t)
+(use-package treemacs-projectile  :after (treemacs projectile))
 
 (use-package treemacs-icons-dired
   :after (treemacs dired)
-  :ensure t
   :config (treemacs-icons-dired-mode))
 
-(use-package treemacs-magit
-  :after (treemacs magit)
-  :ensure t)
+(use-package treemacs-magit :after (treemacs magit))
 
-(use-package magit
-  :ensure t
-  :bind ("C-c m s" . magit-status))
+(use-package magit :bind ("C-c m s" . magit-status))
 
 (use-package company
-  :ensure t
   :diminish company-mode
   :bind ("M-/" . company-complete)
   :defer t
   :config
   (global-company-mode))
 
-(use-package restclient
-  :defer t
-  :ensure t)
+(use-package company-box
+  :hook (company-mode . company-box-mode))
 
-(use-package ob-elixir
-  :ensure t
-  :defer t)
+(use-package restclient :defer t)
+
+(use-package ob-elixir :defer t)
 
 (use-package flycheck
-  :ensure t
   :config
   (global-flycheck-mode))
 
 (use-package yasnippet
-  :ensure t
-  :diminish yas-minor-mode
-  :defer t)
+  :diminish yas-minor-mode)
 
 (use-package lsp-mode
   :commands lsp
-  :ensure t
+  :init
+  (add-to-list 'exec-path "/home/victorolinasc/Projects/elixir-ls/release/erl23/")
+  (add-to-list 'lsp-file-watch-ignored ".elixir_ls$")
+  (add-to-list 'lsp-file-watch-ignored "deps$")
+  (add-to-list 'lsp-file-watch-ignored "_build$")
   :hook
   (elixir-mode . lsp))
 
 (use-package lsp-ui
   :commands lsp-ui-mode
-  :ensure t
   :after (lsp-mode)
   :init
   (setq lsp-ui-doc-enable nil)
   (setq lsp-prefer-flymake nil))
 
-(use-package company-lsp
-  :commands company-lsp
-  :ensure t
-  :after (company)
-  :config
-  (setq company-lsp-cache-candidates t)
-  (push 'company-lsp company-backends))
-
-(defun vn/elixir-ls-reload ()
-  "Reloads the path of the elixir language server."
-  (interactive)
-  (add-to-list 'exec-path "~/dev/tools/elixir-ls/release/erl21"))
-
 (use-package elixir-mode
-  :load-path "~/dev/projects/emacs-elixir"
   :init
-  (add-to-list 'exec-path "~/dev/tools/elixir-ls/release/erl21")
   (add-hook 'elixir-mode-hook
             (lambda ()
               (push '(">=" . ?\u2265) prettify-symbols-alist)
@@ -249,7 +222,6 @@
   (add-hook 'elixir-mode-hook #'+elixir-format-on-save-mode))
 
 (use-package exunit
-  :ensure t
   :diminish t
   :bind
   ("C-c e ." . exunit-verify-single)
@@ -259,41 +231,30 @@
   ("C-c e l" . exunit-rerun))
 
 ;; On a clean build, we need to call 'all-the-icons-install-fonts' function
-(use-package all-the-icons
-  :ensure t
-  :defer t)
+(use-package all-the-icons :defer t)
 
-(use-package erlang
-  :defer t
-  :ensure t)
+(use-package erlang :defer t)
 
 (use-package multiple-cursors
-  :ensure t
   :bind
   ("C->" . 'mc/mark-next-like-this)
   ("C-<" . 'mc/mark-previous-like-this))
 
-(use-package yaml-mode
-  :ensure t)
+(use-package yaml-mode)
 
 ;; JavaScript configuration
 (use-package js2-mode
-  :ensure t
   :init
   (add-to-list 'auto-mode-alist '("\\.js\\'" . js2-mode)))
 
 (use-package editorconfig
-  :ensure t
   :diminish editorconfig-mode
   :config
   (editorconfig-mode 1))
 
-(use-package pass
-  :ensure t
-  :defer t)
+(use-package pass :defer t)
 
 (use-package web-mode
-  :ensure t
   :init
   (setq
    web-mode-markup-indent-offset 2
@@ -304,14 +265,11 @@
   (add-to-list 'auto-mode-alist '("\\.eex?\\'" . web-mode))
   )
 
-(use-package ox-gfm
-  :ensure t)
+(use-package ox-gfm)
 
-(use-package ox-spectacle
-  :ensure t)
+(use-package ox-spectacle)
 
 (use-package plantuml-mode
-  :ensure t
   :init
   (setq plantuml-jar-path (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
   (setq plantuml-default-exec-mode "jar")
@@ -319,7 +277,6 @@
 
 (use-package org
   :bind (("C-c a" . org-agenda))
-  :ensure t
   :init
   (setq org-hide-leading-stars t
         org-list-allow-alphabetical t
@@ -350,15 +307,23 @@
     (setq org-projectile-projects-file (concat user-emacs-directory "org/projects-todo.org"))
     (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
     (push (org-projectile-project-todo-entry) org-capture-templates))
-  :ensure t)
+  )
 
-(use-package docker
-  :ensure t
-  :bind ("C-c d" . docker))
+(use-package docker :bind ("C-c d" . docker))
 
-(use-package kubernetes
-  :ensure t
-  :commands (kubernetes-overview))
+(use-package kubernetes :commands (kubernetes-overview))
+
+(use-package doom-themes
+  :config
+  (setq doom-themes-enable-bold t 
+        doom-themes-enable-italic t)
+  (load-theme 'doom-vibrant t)
+  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
+  (doom-themes-treemacs-config))
+
+(use-package doom-modeline
+  :init (doom-modeline-mode 1))
+
 
 (provide 'init)
 ;;; init.el ends here

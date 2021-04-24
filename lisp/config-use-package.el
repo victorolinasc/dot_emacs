@@ -20,12 +20,14 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (package '(use-package diminish))
+(dolist (package '(use-package diminish bind-key))
   (unless (package-installed-p package)
     (package-install package))
   (require package))
 
 (require 'bind-key)
+(require 'use-package-ensure)
+(setq use-package-always-ensure t)
 
 (provide 'config-use-package)
 ;;; config-use-package.el ends here

@@ -19,6 +19,8 @@
 
 ;; Higher garbage collector
 (setq gc-cons-threshold (* 20 1024 1024))
+;; Optimization for LSP
+(setq read-process-output-max (* 1024 1024))
 
 ;; Disable bi-directional text
 (setq-default bidi-paragraph-direction 'left-to-right)
@@ -57,12 +59,6 @@
                    (abbreviate-file-name (buffer-file-name))
                  "%b"))))
 
-;; Set default font-size
-(set-face-attribute 'default nil
-                    :family "Source Code Pro" :height 150)
-(set-face-attribute 'variable-pitch nil
-                    :family "Fira Sans" :height 150 :weight 'regular)
-
 (bind-key "C-c t V" #'variable-pitch-mode)
 
 ;; Font resizing keybinding
@@ -88,19 +84,25 @@
 
 ;; hide menus
 (menu-bar-mode -1)
-(toggle-scroll-bar -1)
 (tool-bar-mode -1)
 
 (bind-key "C-c h b" #'describe-personal-keybindings)
 
 ;; Ensure cursor has the same color when run on daemon or not
 (require 'frame)
-(defun set-cursor-hook (frame)
-  "Ensure cursor has the same color when run on FRAME."
+(defun after-make-frame-customization (frame)
+  "Run customizations after make FRAME because of daemon mode."
   (modify-frame-parameters
-   frame (list (cons 'cursor-color "DeepSkyBlue"))))
+   frame '((vertical-scroll-bars . nil)
+           (horizontal-scroll-bars . nil)
+           (cursor-color . "DeepSkyBlue"))))
 
-(add-hook 'after-make-frame-functions 'set-cursor-hook)
+(add-hook 'after-make-frame-functions 'after-make-frame-customization)
+
+(when (window-system)
+  ;; Then evaluate the menu-bar, tool-bar, scroll bar etc. disabling
+  (set-face-attribute 'default nil :family "Fira Code" :height 170 :weight 'regular)
+  (set-face-attribute 'variable-pitch nil :family "Fira Sans" :height 170 :weight 'regular))
 
 ;; Maximize on start
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
@@ -109,6 +111,9 @@
 (global-set-key (kbd "<f5>") 'treemacs)
 (global-set-key (kbd "<f6>") 'flycheck-list-errors)
 (global-set-key (kbd "<f7>") 'eshell)
+(global-set-key (kbd "C-o") 'other-window)
+(global-set-key (kbd "s-SPC") 'switch-to-buffer)
+(global-set-key (kbd "C-q") 'kill-buffer)
 
 ;; Enable prettify symbols
 (global-prettify-symbols-mode)
@@ -116,4 +121,5 @@
 ;; Use windmove default key binding
 (windmove-default-keybindings)
 
+(load-file (expand-file-name "lisp/vn.el" user-emacs-directory))
 ;;; simple-config.el ends here
