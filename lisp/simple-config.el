@@ -89,20 +89,22 @@
 (bind-key "C-c h b" #'describe-personal-keybindings)
 
 ;; Ensure cursor has the same color when run on daemon or not
-(require 'frame)
-(defun after-make-frame-customization (frame)
-  "Run customizations after make FRAME because of daemon mode."
-  (modify-frame-parameters
-   frame '((vertical-scroll-bars . nil)
-           (horizontal-scroll-bars . nil)
-           (cursor-color . "DeepSkyBlue"))))
+(defun vn/customize-frame ()
+  (message "Setting faces!")
+  (set-face-attribute 'default nil :font "Fira Code" :height 170)
 
-(add-hook 'after-make-frame-functions 'after-make-frame-customization)
+  ;; Set the fixed pitch face
+  (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 170)
 
-(when (window-system)
-  ;; Then evaluate the menu-bar, tool-bar, scroll bar etc. disabling
-  (set-face-attribute 'default nil :family "Fira Code" :height 170 :weight 'regular)
-  (set-face-attribute 'variable-pitch nil :family "Fira Sans" :height 170 :weight 'regular))
+  ;; Set the variable pitch face
+  (set-face-attribute 'variable-pitch nil :font "Droid Sans" :height 170 :weight 'regular)
+  (setq doom-modeline-icon t)
+  (toggle-scroll-bar -1)
+  (set-cursor-color "DeepSkyBlue"))
+
+(if (daemonp)
+    (add-hook 'server-after-make-frame-hook #'vn/customize-frame)
+    (vn/customize-frame))
 
 ;; Maximize on start
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
