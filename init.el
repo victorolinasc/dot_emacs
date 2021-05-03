@@ -174,12 +174,13 @@
   :diminish yas-minor-mode)
 
 (use-package lsp-mode
-  :commands lsp
+  :commands (lsp lsp-deferred)
   :init
   (add-to-list 'exec-path "/home/victorolinasc/Projects/elixir-ls/release/erl23/")
-  (add-to-list 'lsp-file-watch-ignored ".elixir_ls$")
-  (add-to-list 'lsp-file-watch-ignored "deps$")
-  (add-to-list 'lsp-file-watch-ignored "_build$")
+  :config
+  (setq lsp-file-watch-threshold 2000)
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.elixir_ls\\'")
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\deps\\'")
   :hook
   (elixir-mode . lsp))
 
