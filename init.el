@@ -61,6 +61,10 @@
   ("C-h F" . helpful-function)
   ("C-h C" . helpful-command))
 
+(use-package which-key
+  :config
+  (which-key-mode))
+
 (use-package counsel
   :diminish t
   :config
@@ -171,7 +175,9 @@
   (global-flycheck-mode))
 
 (use-package yasnippet
-  :diminish yas-minor-mode)
+  :diminish yas-minor-mode
+  :config
+  (yas-global-mode 1))
 
 (use-package lsp-mode
   :commands (lsp lsp-deferred)

@@ -44,6 +44,9 @@
 ;; Highlight current line
 (global-hl-line-mode +1)
 
+;; Better ease on reading lines
+(setq line-spacing 0.1)
+
 ;; No tabs by default
 (setq-default indent-tabs-mode nil)
 
