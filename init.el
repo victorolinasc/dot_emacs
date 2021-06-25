@@ -144,7 +144,8 @@
   (treemacs-filewatch-mode t)
   (treemacs-git-mode 'simple)
   (treemacs-resize-icons 22)
-  (add-hook 'treemacs-mode-hook (lambda() (display-line-numbers-mode -1))))
+  (add-hook 'treemacs-mode-hook (lambda () (display-line-numbers-mode -1)))
+  (add-hook 'cfrs-input-mode-hook (lambda() (set-cursor-color "DeepSkyBlue"))))
 
 (use-package treemacs-projectile  :after (treemacs projectile))
 
@@ -269,8 +270,7 @@
    web-mode-code-indent-offset 2)
   :config
   (add-to-list 'auto-mode-alist '("\\.html?\\'" . web-mode))
-  (add-to-list 'auto-mode-alist '("\\.eex?\\'" . web-mode))
-  )
+  (add-to-list 'auto-mode-alist '("\\.eex?\\'" . web-mode)))
 
 (use-package ox-gfm)
 
@@ -322,15 +322,16 @@
 
 (use-package doom-themes
   :config
-  (setq doom-themes-enable-bold t 
+  (setq doom-themes-enable-bold t
         doom-themes-enable-italic t)
   (load-theme 'doom-vibrant t)
   (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
   (doom-themes-treemacs-config))
 
 (use-package doom-modeline
-  :init (doom-modeline-mode 1))
-
+  :hook (window-setup . doom-modeline-mode)
+  :config
+  (setq doom-modeline-height 35))
 
 (provide 'init)
 ;;; init.el ends here

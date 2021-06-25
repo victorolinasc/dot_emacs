@@ -101,7 +101,6 @@
 
   ;; Set the variable pitch face
   (set-face-attribute 'variable-pitch nil :font "Droid Sans" :height 170 :weight 'regular)
-  (setq doom-modeline-icon t)
   (toggle-scroll-bar -1)
   (set-cursor-color "DeepSkyBlue"))
 
