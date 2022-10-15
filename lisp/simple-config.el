@@ -7,10 +7,6 @@
 (setq custom-file (expand-file-name "lisp/custom.el" user-emacs-directory))
 (load custom-file 'noerror)
 
-;; Init in full frame
-(custom-set-variables
- '(initial-frame-alist (quote ((fullscreen . maximized)))))
-
 ;; Introduce myself
 (setq user-full-name "Victor Oliveira Nascimento")
 
@@ -43,9 +39,6 @@
 
 ;; Highlight current line
 (global-hl-line-mode +1)
-
-;; Better ease on reading lines
-(setq line-spacing 0.1)
 
 ;; No tabs by default
 (setq-default indent-tabs-mode nil)
@@ -88,28 +81,26 @@
 ;; hide menus
 (menu-bar-mode -1)
 (tool-bar-mode -1)
+(scroll-bar-mode -1)
 
-(bind-key "C-c h b" #'describe-personal-keybindings)
+(set-face-attribute 'default nil :font "Fira Code" :height 170)
 
-;; Ensure cursor has the same color when run on daemon or not
+;; Set the fixed pitch face
+(set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 170)
+
+;; Set the variable pitch face
+(set-face-attribute 'variable-pitch nil :font "Droid Sans" :height 170 :weight 'regular)
+
+;; Better ease on reading lines
+(setq line-spacing 0.1)
+
 (defun vn/customize-frame ()
-  (message "Setting faces!")
-  (set-face-attribute 'default nil :font "Fira Code" :height 170)
-
-  ;; Set the fixed pitch face
-  (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 170)
-
-  ;; Set the variable pitch face
-  (set-face-attribute 'variable-pitch nil :font "Droid Sans" :height 170 :weight 'regular)
-  (toggle-scroll-bar -1)
+  ;; Ensure cursor has the same color when run on daemon or not
   (set-cursor-color "DeepSkyBlue"))
 
 (if (daemonp)
     (add-hook 'server-after-make-frame-hook #'vn/customize-frame)
     (vn/customize-frame))
-
-;; Maximize on start
-(add-to-list 'default-frame-alist '(fullscreen . maximized))
 
 ;; Custom key bindings
 (global-set-key (kbd "<f5>") 'treemacs)
@@ -119,11 +110,10 @@
 (global-set-key (kbd "s-SPC") 'switch-to-buffer)
 (global-set-key (kbd "C-q") 'kill-buffer)
 
+(unbind-key "C-z")
+
 ;; Enable prettify symbols
 (global-prettify-symbols-mode)
-
-;; Use windmove default key binding
-(windmove-default-keybindings)
 
 (load-file (expand-file-name "lisp/vn.el" user-emacs-directory))
 ;;; simple-config.el ends here

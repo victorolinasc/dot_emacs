@@ -4,32 +4,12 @@
 ;;; Emacs initialization and configuration
 
 ;;; Code:
-(load-file (expand-file-name "lisp/config-use-package.el" user-emacs-directory))
 (load-file (expand-file-name "lisp/simple-config.el" user-emacs-directory))
 
 (use-package exec-path-from-shell
   :config
   (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
   (exec-path-from-shell-initialize))
-
-(use-package eshell
-  :ensure nil
-  :init
-  (setq eshell-visual-commands '("vi" "screen" "top" "less" "more" "lynx"
-                                 "ncftp" "pine" "tin" "trn" "elm" "vim"
-                                 "nmtui" "alsamixer" "htop" "el" "elinks"
-                                 ))
-  (setq eshell-hist-ignoredups t)
-  :config
-  (add-hook 'eshell-mode-hook (lambda () (exec-path-from-shell-initialize)))
-  (setenv "PAGER" "cat"))
-
-(use-package eshell-prompt-extras
-    :after eshell
-  :config
-  (autoload 'epe-theme-lambda "eshell-prompt-extras")
-  (setq eshell-highlight-prompt nil
-        eshell-prompt-function 'epe-theme-lambda))
 
 (use-package diminish)
 
@@ -44,6 +24,13 @@
 (use-package multi-vterm
   :bind
   ("<f2>" . multi-vterm-project))
+
+(use-package tree-sitter
+  :config
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+
+(use-package tree-sitter-langs)
 
 (use-package flyspell
   :ensure nil
@@ -64,6 +51,83 @@
 (use-package which-key
   :config
   (which-key-mode))
+
+(use-package corfu
+  :bind (:map corfu-map
+		("<escape>". corfu-quit)
+		("<return>" . corfu-insert))
+  :custom
+  ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
+  ;; want to perform completion
+  (tab-always-indent 'complete)
+
+  (corfu-auto nil)
+  (corfu-auto-prefix 2)
+  (corfu-auto-delay 0.25)
+
+  (corfu-preview-current 'insert)       ; Preview current candidate?
+  (corfu-preselect-first t)
+  :init
+  (global-corfu-mode))
+
+(use-package corfu-doc
+    :bind (:map corfu-map
+		("M-d" . corfu-doc-toggle)
+                ("M-n" . corfu-doc-scroll-up)
+                ("M-p" . corfu-doc-scroll-down))
+  :after corfu
+  :hook
+  (corfu-mode-hook . 'corfu-doc-mode))
+
+(use-package cape
+  ;; Bind dedicated completion commands
+  ;; Alternative prefix keys: C-c p, M-p, M-+, ...
+  :bind (("M-/" . completion-at-point)     ;; capf
+         ("C-c p t" . complete-tag)        ;; etags
+         ("C-c p d" . cape-dabbrev)        ;; or dabbrev-completion
+         ("C-c p h" . cape-history)
+         ("C-c p f" . cape-file)
+         ("C-c p k" . cape-keyword)
+         ("C-c p s" . cape-symbol)
+         ("C-c p a" . cape-abbrev)
+         ("C-c p i" . cape-ispell)
+         ("C-c p l" . cape-line)
+         ("C-c p w" . cape-dict)
+         ("C-c p \\" . cape-tex)
+         ("C-c p _" . cape-tex)
+         ("C-c p ^" . cape-tex)
+         ("C-c p &" . cape-sgml)
+         ("C-c p r" . cape-rfc1345))
+  :init
+  ;; Add `completion-at-point-functions', used by `completion-at-point'.
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  ;;(add-to-list 'completion-at-point-functions #'cape-history)
+  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
+  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
+  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
+  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
+  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
+  (add-to-list 'completion-at-point-functions #'cape-ispell)
+  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
+  ;;(add-to-list 'completion-at-point-functions #'cape-symbol)
+  ;;(add-to-list 'completion-at-point-functions #'cape-line)
+)
+
+(use-package marginalia
+  :init
+  ;; Must be in the :init section of use-package such that the mode gets
+  ;; enabled right away. Note that this forces loading the package.
+  (marginalia-mode))
+
+(use-package kind-icon
+  :after corfu
+  :custom
+  (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly  
+  :config
+  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
+  (setq kind-icon-default-style
+   '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.9 :scale 1.0)))
 
 (use-package counsel
   :diminish t
@@ -86,7 +150,6 @@
 
 (use-package prescient)
 (use-package ivy-prescient :after (counsel))
-(use-package company-prescient :after (company))
 
 (use-package eldoc :ensure nil  :diminish eldoc-mode)
 
@@ -97,10 +160,6 @@
   :bind
   ("C-S-f" . deadgrep))
  
-(use-package smooth-scrolling
-  :config
-  (smooth-scrolling-mode 1))
-
 (use-package dired
   :ensure nil
   :defer t
@@ -122,13 +181,37 @@
   (move-text-default-bindings))
 
 (use-package smartparens
+  :bind (:map smartparens-mode-map
+              ("C-M-k" . sp-kill-sexp)
+              ("C-M-w" . sp-copy-sexp)
+              ("M-<delete>" . sp-unwrap-sexp)
+              ("M-<backspace>" . sp-backward-unwrap-sexp)
+              ("C-<right>" . sp-forward-slurp-sexp)
+              ("C-<left>" . sp-forward-barf-sexp)
+              ("C-M-<left>" . sp-backward-slurp-sexp)
+              ("C-M-<right>" . sp-backward-barf-sexp)
+              ("M-D" . sp-splice-sexp)
+              ("C-M-<delete>" . sp-splice-sexp-killing-forward)
+              ("C-M-<backspace>" . sp-splice-sexp-killing-backward)
+              ("C-S-<backspace>" . sp-splice-sexp-killing-around))
   :diminish smartparens-mode
+  :hook (prog-mode-hook . turn-on-smartparens-strict-mode)
   :config
   (require 'smartparens-config)
-  (smartparens-global-mode)
-  (show-smartparens-global-mode))
+  (smartparens-global-mode))
 
 (use-package rainbow-mode :diminish rainbow-mode)
+
+(use-package rainbow-delimiters
+  :hook (prog-mode . rainbow-delimiters-mode))
+
+(use-package super-save
+  :defer t
+  :custom
+  ;; Disable auto-saving for remote files
+  (super-save-remote-files nil)
+  :config
+  (super-save-mode))
 
 (use-package markdown-mode :mode ("\\.md\\'" . gfm-mode))
 
@@ -139,78 +222,61 @@
   (projectile-mode +1))
 
 (use-package treemacs
-  :defer t
+  :hook (treemacs-mode-hook . (lambda () (display-line-numbers-mode -1)))
   :config
   (treemacs-filewatch-mode t)
-  (treemacs-git-mode 'simple)
-  (treemacs-resize-icons 22)
-  (add-hook 'treemacs-mode-hook (lambda () (display-line-numbers-mode -1)))
-  (add-hook 'cfrs-input-mode-hook (lambda() (set-cursor-color "DeepSkyBlue"))))
+  (treemacs-git-mode 'simple))
 
 (use-package treemacs-projectile  :after (treemacs projectile))
-
-(use-package treemacs-icons-dired
-  :after (treemacs dired)
-  :config (treemacs-icons-dired-mode))
-
 (use-package treemacs-magit :after (treemacs magit))
+(use-package treemacs-icons-dired :after (treemacs dired) :config (treemacs-icons-dired-mode))
 
 (use-package magit :bind ("C-c m s" . magit-status))
 
-(use-package company
-  :diminish company-mode
-  :bind ("M-/" . company-complete)
-  :defer t
-  :config
-  (global-company-mode))
-
-(use-package company-box
-  :hook (company-mode . company-box-mode))
-
 (use-package restclient :defer t)
-
 (use-package ob-elixir :defer t)
 
-(use-package flycheck
-  :config
-  (global-flycheck-mode))
-
-(use-package yasnippet
-  :diminish yas-minor-mode
-  :config
-  (yas-global-mode 1))
+(use-package yasnippet :diminish yas-minor-mode :config (yas-global-mode 1))
+(use-package yasnippet-snippets :after (yasnippet))
 
 (use-package lsp-mode
-  :commands (lsp lsp-deferred)
+  :commands (lsp lsp-deferred lsp-format-buffer)
+  :custom
+  (lsp-completion-provider :none) ;; we use Corfu!
   :init
+  (defun vn/lsp-mode-setup-completion ()
+    (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
+          '(flex))) ;; Configure orderless
   (add-to-list 'exec-path "/home/victorolinasc/Projects/elixir-ls/release/erl23/")
   :config
   (setq lsp-file-watch-threshold 2000)
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.elixir_ls\\'")
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\deps\\'")
+  (setq lsp-diagnostics-provider :flymake)
+  (setq lsp-lens-enable nil)
   :hook
+  (lsp-completion-mode . vn/lsp-mode-setup-completion)
   (elixir-mode . lsp))
 
 (use-package lsp-ui
   :commands lsp-ui-mode
   :after (lsp-mode)
   :init
-  (setq lsp-ui-doc-enable nil)
-  (setq lsp-prefer-flymake nil))
+  (setq lsp-ui-doc-enable t)
+  (setq lsp-ui-doc-show-with-mouse t)
+  (setq lsp-prefer-flymake t))
 
 (use-package elixir-mode
-  :init
-  (add-hook 'elixir-mode-hook
-            (lambda ()
-              (push '(">=" . ?\u2265) prettify-symbols-alist)
-              (push '("<=" . ?\u2264) prettify-symbols-alist)
-              (push '("!=" . ?\u2260) prettify-symbols-alist)
-              (push '("==" . ?\u2A75) prettify-symbols-alist)
-              (push '("=~" . ?\u2245) prettify-symbols-alist)
-              (push '("<-" . ?\u2190) prettify-symbols-alist)
-              (push '("->" . ?\u2192) prettify-symbols-alist)
-              (push '("<-" . ?\u2190) prettify-symbols-alist)
-              (push '("|>" . ?\u25B7) prettify-symbols-alist))))
+  :hook (elixir-mode . (lambda ()
+                         (push '(">=" . ?\u2265) prettify-symbols-alist)
+                         (push '("<=" . ?\u2264) prettify-symbols-alist)
+                         (push '("!=" . ?\u2260) prettify-symbols-alist)
+                         (push '("==" . ?\u2A75) prettify-symbols-alist)
+                         (push '("=~" . ?\u2245) prettify-symbols-alist)
+                         (push '("<-" . ?\u2190) prettify-symbols-alist)
+                         (push '("->" . ?\u2192) prettify-symbols-alist)
+                         (push '("<-" . ?\u2190) prettify-symbols-alist)
+                         (push '("|>" . ?\u25B7) prettify-symbols-alist))))
 
 (use-package reformatter
   :config
@@ -239,7 +305,8 @@
   ("C-c e l" . exunit-rerun))
 
 ;; On a clean build, we need to call 'all-the-icons-install-fonts' function
-(use-package all-the-icons :defer t)
+(use-package all-the-icons
+  :if (display-graphic-p))
 
 (use-package erlang :defer t)
 
@@ -273,7 +340,6 @@
   (add-to-list 'auto-mode-alist '("\\.eex?\\'" . web-mode)))
 
 (use-package ox-gfm)
-
 (use-package ox-spectacle)
 
 (use-package plantuml-mode
@@ -284,18 +350,20 @@
 
 (use-package org
   :bind (("C-c a" . org-agenda))
-  :init
-  (setq org-hide-leading-stars t
-        org-list-allow-alphabetical t
-        org-src-fontify-natively t  ;; you want this to activate coloring in blocks
-        org-src-tab-acts-natively t ;; you want this to have completion in blocks
-        org-hide-emphasis-markers t ;; to hide the *,=, or / markers
-        org-pretty-entities t       ;; to have \alpha, \to and others display as utf8
-        org-export-with-sub-superscripts nil ;; Disable sub and superscripts
-        org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory)
-        org-confirm-babel-evaluate 'do-not-ask-for-confirmation-for-elixir-evaluate)
-  (setq org-plantuml-jar-path
-      (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
+  :custom
+  (org-hide-leading-stars t)
+  (org-list-allow-alphabetical t)
+  (org-src-fontify-natively t "You want this to activate coloring in blocks")
+  (org-src-tab-acts-natively t "You want this to have completion in blocks")
+  (org-hide-emphasis-markers t "This hides the *,=, or / markers")
+  (org-pretty-entities t "to have \alpha, \to and others display as utf8")
+  (org-pretty-entities-include-sub-superscripts nil)
+  (org-export-with-sub-superscripts nil "Disable sub and superscripts in exports only")
+  (org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory))
+  (org-bulle)
+;  (org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
+  (org-plantuml-jar-path
+   (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
   :config
   (org-babel-do-load-languages
    'org-babel-load-languages
@@ -313,25 +381,49 @@
   (progn
     (setq org-projectile-projects-file (concat user-emacs-directory "org/projects-todo.org"))
     (setq org-agenda-files (append org-agenda-files (org-projectile-todo-files)))
-    (push (org-projectile-project-todo-entry) org-capture-templates))
-  )
+    (push (org-projectile-project-todo-entry) org-capture-templates)))
 
-(use-package docker :bind ("C-c d" . docker))
+(use-package org-superstar
+  :init
+  (add-hook 'org-mode-hook (lambda () (org-superstar-mode 1))))
+
+(use-package org-tree-slide
+  :hook ((org-tree-slide-play . org-display-inline-images))
+  :custom
+  (org-image-actual-width nil))
+
+(use-package docker
+  :pin melpa
+  :bind ("C-c d" . docker))
 
 (use-package kubernetes :commands (kubernetes-overview))
 
-(use-package doom-themes
-  :config
-  (setq doom-themes-enable-bold t
-        doom-themes-enable-italic t)
-  (load-theme 'doom-vibrant t)
-  (setq doom-themes-treemacs-theme "doom-colors") ; use the colorful treemacs theme
-  (doom-themes-treemacs-config))
+(use-package graphviz-dot-mode)
+
+(use-package transient :pin "melpa")
+
+(use-package solaire-mode
+  :init (solaire-global-mode +1))
 
 (use-package doom-modeline
-  :hook (window-setup . doom-modeline-mode)
-  :config
-  (setq doom-modeline-height 35))
+  :after all-the-icons
+  :init (doom-modeline-mode)
+  :custom  (doom-modeline-height 35)) 
+
+(use-package doom-themes
+  :after (treemacs)
+  :config  
+  (load-theme 'doom-one t)
+  (setq doom-themes-treemacs-theme "doom-atom")
+  (setq doom-treemacs-enable-variable-pitch t)
+  (doom-themes-treemacs-config))
+
+(with-eval-after-load 'lsp-mode
+  (add-hook 'lsp-mode-hook #'lsp-enable-which-key-integration))
+
+;; Make GC pauses faster by decreasing the threshold.
+(setq gc-cons-threshold (* 2 1000 1000))
 
 (provide 'init)
 ;;; init.el ends here
+
