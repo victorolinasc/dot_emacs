@@ -411,6 +411,7 @@
   :custom  (doom-modeline-height 35)) 
 
 (use-package doom-themes
+  :pin melpa
   :after (treemacs)
   :config  
   (load-theme 'doom-one t)

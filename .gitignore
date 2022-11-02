@@ -2,6 +2,7 @@
 /*
 !.gitignore
 !init.el
+!early-init.el
 !README.org
 !emacs.desktop
 !eshell/alias
