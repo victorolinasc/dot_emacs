@@ -104,7 +104,7 @@
 
 ;; Custom key bindings
 (global-set-key (kbd "<f5>") 'treemacs)
-(global-set-key (kbd "<f6>") 'flycheck-list-errors)
+(global-set-key (kbd "<f6>") 'flymake-show-buffer-diagnostics)
 (global-set-key (kbd "<f7>") 'eshell)
 (global-set-key (kbd "C-o") 'other-window)
 (global-set-key (kbd "s-SPC") 'switch-to-buffer)
@@ -114,6 +114,10 @@
 
 ;; Enable prettify symbols
 (global-prettify-symbols-mode)
+
+;; Emacs 28: Hide commands in M-x which do not work in the current mode.
+;; Vertico commands are hidden in normal buffers.
+(setq read-extended-command-predicate #'command-completion-default-include-p)
 
 (load-file (expand-file-name "lisp/vn.el" user-emacs-directory))
 ;;; simple-config.el ends here

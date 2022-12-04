@@ -16,10 +16,11 @@
 (use-package vterm
   :config
   (add-hook 'vterm-mode-hook
-          (lambda ()
-            (display-line-numbers-mode -1)))
+            (lambda ()
+              (display-line-numbers-mode -1)))
   :bind
-  ("C-o" . other-window))
+  (("C-o" . other-window)
+   ("<f5>" . treemacs)))
 
 (use-package multi-vterm
   :bind
@@ -52,32 +53,36 @@
   :config
   (which-key-mode))
 
+(defun corfu-enable-in-minibuffer ()
+  "Enable Corfu in the minibuffer if `completion-at-point' is bound."
+  (when (where-is-internal #'completion-at-point (list (current-local-map)))
+    ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
+    (setq-local corfu-echo-delay nil ;; Disable automatic echo and (point)opup
+                corfu-popupinfo-delay nil)
+    (corfu-mode 1)))
+
 (use-package corfu
   :bind (:map corfu-map
-		("<escape>". corfu-quit)
-		("<return>" . corfu-insert))
+	      ("<escape>". corfu-quit)
+	      ("<return>" . corfu-insert)
+              ("M-n" . corfu-popupinfo-scroll-up)
+              ("M-p" . corfu-popupinfo-scroll-down))
   :custom
   ;; Works with `indent-for-tab-command'. Make sure tab doesn't indent when you
   ;; want to perform completion
   (tab-always-indent 'complete)
-
   (corfu-auto nil)
   (corfu-auto-prefix 2)
   (corfu-auto-delay 0.25)
 
-  (corfu-preview-current 'insert)       ; Preview current candidate?
+  (corfu-preview-current 'insert)
   (corfu-preselect-first t)
   :init
-  (global-corfu-mode))
-
-(use-package corfu-doc
-    :bind (:map corfu-map
-		("M-d" . corfu-doc-toggle)
-                ("M-n" . corfu-doc-scroll-up)
-                ("M-p" . corfu-doc-scroll-down))
-  :after corfu
+  (global-corfu-mode)
+  (corfu-popupinfo-mode)
+  (corfu-echo-mode)
   :hook
-  (corfu-mode-hook . 'corfu-doc-mode))
+  (minibuffer-setup . corfu-enable-in-minibuffer))
 
 (use-package cape
   ;; Bind dedicated completion commands
@@ -102,17 +107,57 @@
   ;; Add `completion-at-point-functions', used by `completion-at-point'.
   (add-to-list 'completion-at-point-functions #'cape-file)
   (add-to-list 'completion-at-point-functions #'cape-dabbrev)
-  ;;(add-to-list 'completion-at-point-functions #'cape-history)
-  ;;(add-to-list 'completion-at-point-functions #'cape-keyword)
-  ;;(add-to-list 'completion-at-point-functions #'cape-tex)
-  ;;(add-to-list 'completion-at-point-functions #'cape-sgml)
-  ;;(add-to-list 'completion-at-point-functions #'cape-rfc1345)
-  ;;(add-to-list 'completion-at-point-functions #'cape-abbrev)
-  (add-to-list 'completion-at-point-functions #'cape-ispell)
-  ;;(add-to-list 'completion-at-point-functions #'cape-dict)
-  ;;(add-to-list 'completion-at-point-functions #'cape-symbol)
-  ;;(add-to-list 'completion-at-point-functions #'cape-line)
-)
+  (add-to-list 'completion-at-point-functions #'cape-ispell))
+
+;; Enable vertico
+(use-package vertico
+  :init
+  (vertico-mode))
+
+(use-package consult
+  :bind (;; C-c bindings (mode-specific-map)
+         ("C-x b" . consult-buffer)                ;; orig. switch-to-buffer
+         ("C-x p b" . consult-project-buffer)      ;; orig. project-switch-to-buffer
+         ;; Other custom bindings
+         ("M-y" . consult-yank-pop)                ;; orig. yank-pop
+         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
+         ("M-g g" . consult-goto-line)             ;; orig. goto-line
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+         ;; M-s bindings (search-map)
+         ("M-s d" . consult-find)
+         ("M-s D" . consult-locate)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("C-s" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s m" . consult-multi-occur)
+         ("M-s u" . consult-focus-lines)
+         :map isearch-mode-map
+         ("M-e" . consult-isearch-history)         ;; orig. isearch-edit-string
+         ("M-s e" . consult-isearch-history)       ;; orig. isearch-edit-string
+         ("M-s l" . consult-line)                  ;; needed by consult-line to detect isearch
+         ("M-s L" . consult-line-multi)            ;; needed by consult-line to detect isearch
+         ;; Minibuffer history
+         :map minibuffer-local-map
+         ("M-s" . consult-history)                 ;; orig. next-matching-history-element
+         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+
+  :hook (completion-list-mode . consult-preview-at-point-mode))
+
+;; Optionally use the `orderless' completion style.
+(use-package orderless
+  :init
+  (setq completion-styles '(orderless basic)
+        completion-category-defaults nil
+        completion-category-overrides '((file (styles partial-completion)))))
+
+;; Persist history over Emacs restarts. Vertico sorts by history position.
+(use-package savehist
+  :init
+  (savehist-mode))
 
 (use-package marginalia
   :init
@@ -120,55 +165,41 @@
   ;; enabled right away. Note that this forces loading the package.
   (marginalia-mode))
 
+(use-package svg-lib)
+
 (use-package kind-icon
-  :after corfu
+  :after corfu svg-lib
   :custom
   (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly  
   :config
   (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
   (setq kind-icon-default-style
-   '(:padding 0 :stroke 0 :margin 0 :radius 0 :height 0.9 :scale 1.0)))
+        '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.4 :scale 1.0)))
 
-(use-package counsel
-  :diminish t
-  :config
-  (setq ivy-use-virtual-buffers t
-        confirm-nonexistent-file-or-buffer t
-        ivy-count-format "(%d/%d) ")
-  (define-key ivy-minibuffer-map (kbd "C-j") #'ivy-immediate-done)
-  (define-key ivy-minibuffer-map (kbd "RET") #'ivy-alt-done)
-  :init
-  (ivy-mode 1)
-  :bind
-  ("C-c C-r" . ivy-resume)
-  ("C-x C-f" . counsel-find-file)
-  ("C-s" . swiper)
-  ("C-x b" . ivy-switch-buffer)
-  ("C-x C-b" . ivy-switch-buffer))
+(use-package eldoc
+  :ensure nil
+  :diminish eldoc-mode)
 
-(use-package ivy  :diminish ivy-mode)
-
-(use-package prescient)
-(use-package ivy-prescient :after (counsel))
-
-(use-package eldoc :ensure nil  :diminish eldoc-mode)
-
-(use-package autorevert :ensure nil  :diminish auto-revert-mode)
+(use-package autorevert
+  :ensure nil
+  :diminish auto-revert-mode)
 
 (use-package deadgrep
   :commands deadgrep
   :bind
   ("C-S-f" . deadgrep))
- 
+
 (use-package dired
   :ensure nil
   :defer t
   :config
   (setq
    dired-auto-revert-buffer t           ; Revert on re-visiting
-   ;; Better dired flags: `-l' is mandatory, `-a' shows all files, `-h' uses
-   ;; human-readable sizes, and `-F' appends file-type classifiers to file names
-   ;; (for better highlighting)
+   ;; Better dired flags:
+   ;; `-l' is mandatory
+   ;; `-a' shows all files
+   ;; `-h' uses human-readable sizes
+   ;; `-F' appends file-type classifiers to file names (for better highlighting)
    dired-listing-switches "-laFGh1v --group-directories-first"
    dired-ls-F-marks-symlinks t          ; -F marks links with @
    ;; Inhibit prompts for simple recursive operations
@@ -200,7 +231,8 @@
   (require 'smartparens-config)
   (smartparens-global-mode))
 
-(use-package rainbow-mode :diminish rainbow-mode)
+(use-package rainbow-mode
+  :diminish rainbow-mode)
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -213,7 +245,8 @@
   :config
   (super-save-mode))
 
-(use-package markdown-mode :mode ("\\.md\\'" . gfm-mode))
+(use-package markdown-mode
+  :mode ("\\.md\\'" . gfm-mode))
 
 (use-package projectile
   :config
@@ -247,7 +280,7 @@
   (defun vn/lsp-mode-setup-completion ()
     (setf (alist-get 'styles (alist-get 'lsp-capf completion-category-defaults))
           '(flex))) ;; Configure orderless
-  (add-to-list 'exec-path "/home/victorolinasc/Projects/elixir-ls/release/erl23/")
+  (add-to-list 'exec-path "/home/victornascimento/Projects/elixir-ls/erl24/")
   :config
   (setq lsp-file-watch-threshold 2000)
   (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.elixir_ls\\'")
@@ -308,7 +341,8 @@
 (use-package all-the-icons
   :if (display-graphic-p))
 
-(use-package erlang :defer t)
+(use-package erlang
+  :defer t)
 
 (use-package multiple-cursors
   :bind
@@ -326,8 +360,6 @@
   :diminish editorconfig-mode
   :config
   (editorconfig-mode 1))
-
-(use-package pass :defer t)
 
 (use-package web-mode
   :init
@@ -361,7 +393,7 @@
   (org-export-with-sub-superscripts nil "Disable sub and superscripts in exports only")
   (org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory))
   (org-bulle)
-;  (org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
+                                        ;  (org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
   (org-plantuml-jar-path
    (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
   :config
@@ -394,28 +426,31 @@
 
 (use-package docker
   :pin melpa
-  :bind ("C-c d" . docker))
+  :bind ("C-c d" . docker)) 
 
-(use-package kubernetes :commands (kubernetes-overview))
+(use-package kubernetes
+  :commands (kubernetes-overview))
 
 (use-package graphviz-dot-mode)
 
-(use-package transient :pin "melpa")
+(use-package transient
+  :pin melpa)
 
 (use-package solaire-mode
+  :after doom-themes
   :init (solaire-global-mode +1))
 
 (use-package doom-modeline
   :after all-the-icons
   :init (doom-modeline-mode)
-  :custom  (doom-modeline-height 35)) 
+  :custom  (doom-modeline-height 35))
 
 (use-package doom-themes
   :pin melpa
   :after (treemacs)
   :config  
-  (load-theme 'doom-one t)
-  (setq doom-themes-treemacs-theme "doom-atom")
+  (load-theme 'doom-city-lights t)
+  (setq doom-themes-treemacs-theme "doom-colors")
   (setq doom-treemacs-enable-variable-pitch t)
   (doom-themes-treemacs-config))
 
