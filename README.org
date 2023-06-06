@@ -2,10 +2,8 @@
 
 This repo is where I keep my dot files for easy bootstrapping my development environment. It is heavily geared towards Elixir development.
 
-It uses:
+It is currently aiming Emacs 29+. It uses built-in ~use-package~, ~eglot~, ~tree-sitter~ and so on.
 
-- ~use-package~ for package management
-- ~lsp-mode~ for my main programming mode (elixir through trevoke/alchemist.el)
-- ~treemacs~ for navigating projects
-- ~magit~ for magical git
-- ... and some other nicities
+For initial setup, there are some things that might still need to be installed/run. Some of them are described in comments but not all of them =/
+
+Intended for personal use! No guarantees are given here whatsoever!

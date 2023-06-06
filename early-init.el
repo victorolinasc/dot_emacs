@@ -9,23 +9,20 @@
 
 ;;; package configuration
 (require 'package)
+(require 'use-package-ensure)
 
-;; Emacs 27.x has gnu elpa as the default
-;; Emacs 28.x adds the nongnu elpa to the list by default, so only
-;; need to add nongnu when this isn't Emacs 28+
-(when (version< emacs-version "28")
-  (add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t))
 (add-to-list 'package-archives '("stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 
-(customize-set-variable 'package-archive-priorities
-                        '(("gnu"    . 99)   ; prefer GNU packages
-                          ("nongnu" . 80)   ; use non-gnu packages if
-                                            ; not found in GNU elpa
-                          ("stable" . 70)   ; prefer "released" versions
-                                            ; from melpa
-                          ("melpa"  . 0)))  ; if all else fails, get it
-                                            ; from melpa
+(customize-set-variable
+ 'package-archive-priorities
+ '(("gnu" . 99) ; prefer GNU packages
+   ("nongnu" . 80) ; use non-gnu packages if
+   ; not found in GNU elpa
+   ("stable" . 70) ; prefer "released" versions
+   ; from melpa
+   ("melpa" . 0))) ; if all else fails, get it
+; from melpa
 
 (package-initialize)
 
@@ -33,14 +30,10 @@
 (unless package-archive-contents
   (package-refresh-contents))
 
-(dolist (package '(use-package diminish bind-key))
-  (unless (package-installed-p package)
-    (package-install package))
-  (require package))
-
-(require 'bind-key)
-(require 'use-package-ensure)
 (setq use-package-always-ensure t)
+
+(use-package diminish)
+(use-package bind-key)
 
 ;; Native compilation settings
 (when (featurep 'native-compile)
@@ -54,8 +47,11 @@
   ;; NOTE the method for setting the eln-cache directory depends on the emacs version
   (when (fboundp 'startup-redirect-eln-cache)
     (if (version< emacs-version "29")
-        (add-to-list 'native-comp-eln-load-path (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
-      (startup-redirect-eln-cache (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
+        (add-to-list
+         'native-comp-eln-load-path
+         (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))
+      (startup-redirect-eln-cache
+       (convert-standard-filename (expand-file-name "var/eln-cache/" user-emacs-directory)))))
 
   (add-to-list 'native-comp-eln-load-path (expand-file-name "eln-cache/" user-emacs-directory)))
 
