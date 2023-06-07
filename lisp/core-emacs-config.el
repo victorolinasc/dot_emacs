@@ -34,7 +34,7 @@
  (indent-tabs-mode nil)
  (lisp-indent-function nil)
  (lisp-indent-offset 2)
-
+ (use-short-answers t)
  ;; Should use:
  ;; (mapc #'treesit-install-language-grammar (mapcar #'car treesit-language-source-alist))
  ;; at least once per installation or while changing this list
@@ -86,7 +86,6 @@
  (global-display-line-numbers-mode)
  (column-number-mode t)
  (size-indication-mode t)
- (use-short-answers t)
  (delete-selection-mode 1)
  (fset 'display-startup-echo-area-message #'ignore)
  (menu-bar-mode -1)
