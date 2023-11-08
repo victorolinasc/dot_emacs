@@ -39,4 +39,8 @@
 (use-package
  eglot
  :ensure nil
- :config (add-to-list 'eglot-server-programs '(elixir-ts-mode "language_server.sh")))
+ :config
+ (add-to-list
+  'eglot-server-programs `((elixir-ts-mode heex-ts-mode elixir-mode) . ("language_server.sh"))))
+
+(use-package rust-ts-mode :ensure nil :defer t :hook (rust-ts-mode . eglot-ensure))

@@ -5,7 +5,10 @@
 
 (use-package
  exec-path-from-shell
- :config (exec-path-from-shell-copy-env "SSH_AUTH_SOCK") (exec-path-from-shell-initialize))
+ :config
+ (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
+ (exec-path-from-shell-copy-env "JAVA_HOME")
+ (exec-path-from-shell-initialize))
 
 (use-package
  vterm
@@ -239,6 +242,8 @@
 
 (use-package erlang :defer t)
 
+(use-package cargo :defer t :hook (rust-ts-mode . cargo-minor-mode))
+
 (use-package
  multiple-cursors
  :bind ("C->" . 'mc/mark-next-like-this) ("C-<" . 'mc/mark-previous-like-this))
@@ -323,9 +328,16 @@
  :pin melpa
  :after (treemacs)
  :config
- (load-theme 'doom-city-lights t)
+ (load-theme 'doom-vibrant t)
  (setq doom-themes-treemacs-theme "doom-colors")
  (setq doom-treemacs-enable-variable-pitch t)
  (doom-themes-treemacs-config))
+
+(use-package
+ kotlin-ts-mode
+ :hook
+ (kotlin-ts-mode . eglot-ensure)
+ (before-save . eglot-format)
+ :mode ("\\.kt\\'" "\\.kts\\'"))
 
 ;;; external-packages-config.el ends here
