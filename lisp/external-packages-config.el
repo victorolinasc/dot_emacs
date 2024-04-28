@@ -4,11 +4,14 @@
 ;;; Configuration of external packages fetches with use-package
 
 (use-package
- exec-path-from-shell
- :config
- (exec-path-from-shell-copy-env "SSH_AUTH_SOCK")
- (exec-path-from-shell-copy-env "JAVA_HOME")
- (exec-path-from-shell-initialize))
+  exec-path-from-shell
+  :custom
+  (exec-path-from-shell-variables '("SSH_AUTH_SOCK" "JAVA_HOME" "PATH"))
+  (exec-path-from-shell-arguments '("-l"))
+  (exec-path-from-shell-check-startup-files nil)
+  (exec-path-from-shell-debug nil)
+  :config
+  (exec-path-from-shell-initialize))
 
 (use-package
  vterm
@@ -68,7 +71,6 @@
   ("C-c p k" . cape-keyword)
   ("C-c p s" . cape-symbol)
   ("C-c p a" . cape-abbrev)
-  ("C-c p i" . cape-ispell)
   ("C-c p l" . cape-line)
   ("C-c p w" . cape-dict)
   ("C-c p \\" . cape-tex)
@@ -80,7 +82,6 @@
  ;; Add `completion-at-point-functions', used by `completion-at-point'.
  (add-to-list 'completion-at-point-functions #'cape-file)
  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
- (add-to-list 'completion-at-point-functions #'cape-ispell)
  (advice-add 'eglot-completion-at-point :around #'cape-wrap-buster))
 
 ;; Enable vertico
@@ -156,7 +157,6 @@
  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
  (setq kind-icon-default-style '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.4 :scale 1.0)))
 
-(use-package deadgrep :commands deadgrep :bind ("C-S-f" . deadgrep))
 (use-package move-text :config (move-text-default-bindings))
 
 (use-package
@@ -242,7 +242,14 @@
 
 (use-package erlang :defer t)
 
-(use-package cargo :defer t :hook (rust-ts-mode . cargo-minor-mode))
+(use-package rust-mode
+ :init
+  (setq rust-mode-treesitter-derive t))
+
+;; (use-package rustic
+;;   :config
+;;   (setq rustic-cargo-test-disable-warnings t)
+;;   (setq rustic-lsp-client 'eglot))
 
 (use-package
  multiple-cursors
@@ -305,7 +312,13 @@
  :hook ((org-tree-slide-play . org-display-inline-images))
  :custom (org-image-actual-width nil))
 
-(use-package docker :pin melpa :bind ("C-c d" . docker))
+(use-package
+  docker
+  :pin melpa
+  :bind ("C-c d" . docker)
+  :init
+  (setq docker-compose-command "docker compose")
+  (line-number-mode 0))
 (use-package kubernetes :commands (kubernetes-overview))
 (use-package graphviz-dot-mode)
 
@@ -315,13 +328,12 @@
  :hook (emacs-lisp-mode . elisp-autofmt-mode))
 
 (use-package mermaid-mode)
-(use-package solaire-mode :after doom-themes :init (solaire-global-mode +1))
 
 (use-package
  doom-modeline
  :after all-the-icons
  :init (doom-modeline-mode)
- :custom (doom-modeline-height 35))
+ :custom (doom-modeline-height 50))
 
 (use-package
  doom-themes
@@ -333,11 +345,29 @@
  (setq doom-treemacs-enable-variable-pitch t)
  (doom-themes-treemacs-config))
 
+(use-package solaire-mode :after doom-themes :init (solaire-global-mode +1))
+
 (use-package
  kotlin-ts-mode
  :hook
  (kotlin-ts-mode . eglot-ensure)
  (before-save . eglot-format)
  :mode ("\\.kt\\'" "\\.kts\\'"))
+
+(use-package eglot-booster
+  :after eglot
+  :config (eglot-booster-mode))
+
+(use-package
+  eglot-java
+  :custom
+  (eglot-java-java-program (expand-file-name "~/.local/share/mise/shims/java"))
+  :bind
+  ("C-c l n" . eglot-java-file-new)
+  ("C-c l x" . eglot-java-run-main)
+  ("C-c l t" . eglot-java-run-test)
+  ("C-c l N" . eglot-java-project-new)
+  ("C-c l T" . eglot-java-project-build-task)
+  ("C-c l R" . eglot-java-project-build-refresh))
 
 ;;; external-packages-config.el ends here

@@ -42,6 +42,7 @@
   '((bash "https://github.com/tree-sitter/tree-sitter-bash")
     (cmake "https://github.com/uyha/tree-sitter-cmake")
     (css "https://github.com/tree-sitter/tree-sitter-css")
+    (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
     (elisp "https://github.com/Wilfred/tree-sitter-elisp")
     (heex "https://github.com/phoenixframework/tree-sitter-heex")
     (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
@@ -65,6 +66,7 @@
     (bash-mode . bash-ts-mode)
     (js2-mode . js-ts-mode)
     (typescript-mode . typescript-ts-mode)
+    (dockerfile-mode . dockerfile-ts-mode)
     (java-mode . java-ts-mode)
     (json-mode . json-ts-mode)
     (kotlin-mode . kotlin-ts-mode)
@@ -84,9 +86,9 @@
  (setq-default indent-tabs-mode nil)
 
  ;; Fonts
- (set-face-attribute 'default nil :font "Fira Code" :height 170 :weight 'light)
- (set-face-attribute 'fixed-pitch nil :font "Fira Code" :height 170 :weight 'light)
- (set-face-attribute 'variable-pitch nil :font "Droid Sans" :height 170 :weight 'light)
+ (set-face-attribute 'default nil :font "Fira Code Nerd Font" :height 170 :weight 'light)
+ (set-face-attribute 'fixed-pitch nil :font "Fira Code Nerd Font" :height 170 :weight 'light)
+ (set-face-attribute 'variable-pitch nil :font "Fira Code Nerd Font" :height 170 :weight 'light)
 
  :config
  (global-display-line-numbers-mode)
