@@ -13,7 +13,6 @@
 
 (add-to-list 'package-archives '("stable" . "https://stable.melpa.org/packages/") t)
 (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("nongnu" . "https://elpa.nongnu.org/nongnu/") t)
 
 (customize-set-variable
  'package-archive-priorities
@@ -30,8 +29,21 @@
 
 (setq use-package-always-ensure t)
 
+(setq load-prefer-newer t)
+(setq package-native-compile t)
+
 (use-package diminish)
 (use-package bind-key)
+
+(use-package compile-angel
+  :ensure t
+  :demand t
+  :config
+  ;; Set `compile-angel-verbose' to nil to silence compile-angel.
+  (setq compile-angel-verbose t)
+
+  (compile-angel-on-load-mode)
+  (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))
 
 ;; Native compilation settings
 (when (featurep 'native-compile)
@@ -39,7 +51,7 @@
   (setq native-comp-async-report-warnings-errors nil)
 
   ;; Make native compilation happens asynchronously
-  (setq native-comp-deferred-compilation t)
+  (setq native-comp-jit-compilation t)
 
   ;; Set the right directory to store the native compilation cache
   ;; NOTE the method for setting the eln-cache directory depends on the emacs version
