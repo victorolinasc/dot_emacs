@@ -1,6 +1,5 @@
 ;;; core-emacs-packages-config.el --- Summary:  -*- lexical-binding: t; -*-
 
-
 ;;; Commentary:
 ;;; Configuration of core emacs packages
 
@@ -9,11 +8,11 @@
 (use-package
  flyspell
  :ensure nil
+ :hook (text-mode . flyspell-mode) (prog-mode . flyspell-prog-mode)
  :config
- (setq
+ (setopt
   ispell-program-name "aspell"
-  ispell-dictionary "en")
- (add-hook 'text-mode-hook #'flyspell-mode) (add-hook 'prog-mode-hook #'flyspell-prog-mode))
+  ispell-dictionary "en"))
 
 (use-package eldoc :ensure nil :diminish eldoc-mode)
 (use-package autorevert :ensure nil :diminish auto-revert-mode)
@@ -25,7 +24,7 @@
  :ensure nil
  :defer t
  :config
- (setq
+ (setopt
   dired-auto-revert-buffer t ; Revert on re-visiting
   ;; Better dired flags:
   ;; `-l' is mandatory
@@ -44,17 +43,30 @@
 (use-package
  eglot
  :ensure nil
- :bind ("C-M-i" . eglot-code-actions) ("s-r" . eglot-rename)
+ :hook
+ (rust-ts-mode . eglot-ensure)
+ (conf-toml-mode . eglot-ensure)
+ (toml-ts-mode . eglot-ensure)
+ (elixir-ts-mode . eglot-ensure)
+ (kotlin-ts-mode . eglot-ensure)
+ (terraform-mode . eglot-ensure)
+ (dart-mode . eglot-ensure)
+ (before-save . eglot-format)
+ :bind
+ ("C-M-i" . eglot-code-actions)
+ ("s-r" . eglot-rename)
  :config
+ (fset #'jsonrpc--log-event #'ignore)
+ (add-to-list 'eglot-server-programs '((elixir-ts-mode heex-ts-mode elixir-mode) . ("elixir-ls")))
+ (add-to-list 'eglot-server-programs '((ponylang-ts-mode ponylang-mode) . ("pony-lsp")))
+ (add-to-list 'eglot-server-programs '((toml-ts-mode) . ("taplo" "lsp" "stdio")))
+ (add-to-list
+  'eglot-server-programs '((text-mode markdown-mode gfm-mode) . ("harper-ls" "--stdio")))
  (add-to-list
   'eglot-server-programs
-  '(((elixir-ts-mode heex-ts-mode elixir-mode) . ("language_server.sh"))
-    (conf-toml-mode . ("taplo" "lsp" "stdio")))))
-
-(use-package rust-ts-mode :ensure nil :defer t :hook (rust-ts-mode . eglot-ensure))
-;(use-package rust-ts-mode :ensure nil :defer t :hook (python-ts-mode . eglot-ensure))
-
-(use-package conf-toml-mode :ensure nil :defer t :hook (conf-toml-mode . eglot-ensure))
+  '((rust-ts-mode rust-mode)
+    .
+    ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
 
 (use-package dockerfile-ts-mode :ensure nil :defer t :mode "Dockerfile\\'")
 

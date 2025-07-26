@@ -55,14 +55,14 @@
       (setq-local sql-database (concat "postgres://" user ":" pass "@localhost:5432" "/" database))
       (sql-postgres))))
 
-(setq sql-connection-alist
-      '((local-fw
-         (sql-product 'postgres)
-         (sql-server "localhost")
-         (sql-user "postgres")
-         (sql-password "postgres")
-         (sql-database "financedwalletdb")
-         (sql-port 5432))))
+(setopt sql-connection-alist
+        '((local-fw
+           (sql-product 'postgres)
+           (sql-server "localhost")
+           (sql-user "postgres")
+           (sql-password "postgres")
+           (sql-database "financedwalletdb")
+           (sql-port 5432))))
 
 (defun vn/sql-connect (connection)
   "Connects to local CONNECTION"

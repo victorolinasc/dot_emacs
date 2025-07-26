@@ -33,12 +33,13 @@
  ("C-h F" . helpful-function)
  ("C-h C" . helpful-command))
 
+(use-package nerd-icons)
+
 (defun corfu-enable-in-minibuffer ()
   "Enable Corfu in the minibuffer if `completion-at-point' is bound."
   (when (where-is-internal #'completion-at-point (list (current-local-map)))
-    ;; (setq-local corfu-auto nil) ;; Enable/disable auto completion
     (setq-local
-     corfu-echo-delay nil ;; Disable automatic echo and (point)opup
+     corfu-echo-delay nil ;; Disable automatic echo and (point)
      corfu-popupinfo-delay nil)
     (corfu-mode 1)))
 
@@ -101,7 +102,7 @@
   ("C-;" . embark-dwim) ;; good alternative: M-.
   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
 
- :init (setq prefix-help-command #'embark-prefix-help-command)
+ :init (setopt prefix-help-command #'embark-prefix-help-command)
 
  :config
  ;; Hide the mode line of the Embark live/completions buffers
@@ -156,7 +157,7 @@
 (use-package
  orderless
  :init
- (setq
+ (setopt
   completion-styles '(orderless basic)
   completion-category-defaults nil
   completion-category-overrides '((file (styles partial-completion)))))
@@ -190,14 +191,12 @@
 
 (use-package
  kind-icon
- :after
- corfu
- svg-lib
- :custom
- (kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly  
+ :after (corfu svg-lib)
  :config
+ (setopt kind-icon-default-face 'corfu-default) ; to compute blended backgrounds correctly  
  (add-to-list 'corfu-margin-formatters #'kind-icon-margin-formatter)
- (setq kind-icon-default-style '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.4 :scale 1.0)))
+ (setopt kind-icon-default-style
+         '(:padding -1 :stroke 0 :margin 0 :radius 0 :height 0.4 :scale 1.0)))
 
 (use-package move-text :config (move-text-default-bindings))
 
@@ -254,7 +253,12 @@
  (add-to-list 'treemacs-ignored-file-predicates 'ignore-pycache))
 
 (use-package treemacs-magit :after (treemacs magit))
-(use-package treemacs-icons-dired :after (treemacs dired) :config (treemacs-icons-dired-mode))
+(use-package
+ treemacs-nerd-icons
+ :after (treemacs nerd-icons)
+ :config
+ (treemacs-load-theme "nerd-icons")
+ (treemacs-resize-icons 44))
 
 (use-package magit :bind ("C-c m s" . magit-status))
 
@@ -265,7 +269,7 @@
 
 (use-package
  elixir-ts-mode
- :hook (elixir-ts-mode . eglot-ensure)
+ :hook
  (elixir-ts-mode
   .
   (lambda ()
@@ -277,8 +281,7 @@
     (push '("<-" . ?\u2190) prettify-symbols-alist)
     (push '("->" . ?\u2192) prettify-symbols-alist)
     (push '("<-" . ?\u2190) prettify-symbols-alist)
-    (push '("|>" . ?\u25B7) prettify-symbols-alist)))
- (before-save . eglot-format))
+    (push '("|>" . ?\u25B7) prettify-symbols-alist))))
 
 (use-package
  exunit
@@ -304,7 +307,7 @@
 (use-package
  web-mode
  :init
- (setq
+ (setopt
   web-mode-markup-indent-offset 2
   web-mode-css-indent-offset 2
   web-mode-code-indent-offset 2)
@@ -318,9 +321,9 @@
 (use-package
  plantuml-mode
  :init
- (setq plantuml-jar-path
-       (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
- (setq plantuml-default-exec-mode "jar")
+ (setopt plantuml-jar-path
+         (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
+ (setopt plantuml-default-exec-mode 'jar)
  :mode "\\.uml\\'")
 
 (use-package
@@ -370,33 +373,12 @@
 
 (use-package mermaid-mode)
 
-;; (use-package
-;; doom-modeline
-;; :after all-the-icons
-;; :init (doom-modeline-mode)
-;; :custom (doom-modeline-height 50))
-
-(use-package
- doom-themes
- :pin melpa
- :after (treemacs)
- :config
- (load-theme 'doom-monokai-pro t)
- (setq doom-themes-treemacs-theme "doom-colors")
- (setq doom-treemacs-enable-variable-pitch t)
- (doom-themes-treemacs-config))
-
 (use-package
  solaire-mode
  :init (solaire-global-mode +1)
  :hook (dashboard-before-initialize . solaire-mode))
 
-(use-package
- kotlin-ts-mode
- :hook
- (kotlin-ts-mode . eglot-ensure)
- (before-save . eglot-format)
- :mode ("\\.kt\\'" "\\.kts\\'"))
+(use-package kotlin-ts-mode :mode ("\\.kt\\'" "\\.kts\\'"))
 
 (use-package
  eglot-java
@@ -409,16 +391,16 @@
  ("C-c l T" . eglot-java-project-build-task)
  ("C-c l R" . eglot-java-project-build-refresh))
 
-(use-package rust-mode :init (setq rust-mode-treesitter-derive t))
+(use-package rust-mode :init (setopt rust-mode-treesitter-derive t))
 
 (use-package
  rustic
  :pin melpa
  :after rust-mode
  :init
- (setq rustic-lsp-client 'eglot)
- (setq rustic-cargo-test-runner 'nextest)
- (setq rustic-cargo-nextest-exec-command '("nextest" "run" "--no-capture")))
+ (setopt rustic-lsp-client 'eglot)
+ (setopt rustic-cargo-test-runner 'nextest)
+ (setopt rustic-cargo-nextest-exec-command '("nextest" "run" "--no-capture")))
 
 (use-package
  pet
@@ -498,26 +480,11 @@
  (defun my-terraform-mode-init ()
    (outline-minor-mode 1))
 
- :hook (terraform-mode . my-terraform-mode-init) (terraform-mode . eglot-ensure))
+ :hook (terraform-mode . my-terraform-mode-init))
 
-(use-package
- centaur-tabs
- :demand
- :init
- (setq centaur-tabs-height 35)
- (setq centaur-tabs-set-icons t)
- (setq centaur-tabs-icon-type 'all-the-icons)
- :config (centaur-tabs-mode t)
- :bind
- ("C-<prior>" . centaur-tabs-backward)
- ("C-<next>" . centaur-tabs-forward))
+(use-package sqlformat :config (setopt sqlformat-command 'pgformatter))
 
-(use-package sqlformat :config (setq sqlformat-command 'pgformatter))
-
-(use-package
- dart-mode
- ;; Optional
- :hook (dart-mode . eglot-ensure) (before-save . eglot-format))
+(use-package dart-mode)
 
 (use-package eat :bind ("<f2>" . eat-project) :config (setq-local display-line-number -1))
 
@@ -536,14 +503,18 @@
  ultra-scroll
  :vc (:url "https://github.com/jdtsmith/ultra-scroll")
  :init
- (setq
+ (setopt
   scroll-conservatively 101 ; important!
   scroll-margin 0)
  :config (ultra-scroll-mode 1))
 
+(use-package treesit-fold-indicators)
+
 (use-package
  treesit-fold
- :init (setq treesit-fold-line-count-show t)
+ :vc
+ (:url "https://github.com/emacs-tree-sitter/treesit-fold.git" :rev :newest :branch "master")
+ :init (setopt treesit-fold-line-count-show t)
  :hook (prog-mode . treesit-fold-mode))
 
 (use-package
@@ -567,10 +538,10 @@
  :pin melpa
  :config (dashboard-setup-startup-hook)
  :init
- (setq
+ (setopt
   dashboard-banner-logo-title "Willbank Capitão"
   dashboard-startup-banner 'logo
-  dashboard-icon-type 'all-the-icons
+  dashboard-icon-type 'nerd-icons
   dashboard-set-heading-icons t
   dashboard-set-file-icons t
   dashboard-projects-backend 'project-el
@@ -580,7 +551,18 @@
  uniline
  :defer t
  :bind ("C-<insert>" . uniline-mode)
- :init (setq uniline-interface-type :transient))
+ :init (setopt uniline-interface-type :transient))
+
+;; Should always be the last
+(use-package
+ doom-themes
+ :pin melpa
+ :after (treemacs)
+ :config
+ (setopt doom-themes-treemacs-theme "doom-colors")
+ (setopt doom-treemacs-enable-variable-pitch t)
+ (load-theme 'doom-monokai-pro t)
+ (doom-themes-treemacs-config))
 
 (provide 'external-packages-config)
 ;;; external-packages-config.el ends here
