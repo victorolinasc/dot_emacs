@@ -539,7 +539,7 @@
  :config (dashboard-setup-startup-hook)
  :init
  (setopt
-  dashboard-banner-logo-title "Willbank Capitão"
+  dashboard-banner-logo-title "Olinasci Emacs"
   dashboard-startup-banner 'logo
   dashboard-icon-type 'nerd-icons
   dashboard-set-heading-icons t
