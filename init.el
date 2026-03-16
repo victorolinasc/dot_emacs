@@ -2,7 +2,7 @@
 
 ;;; Commentary:
 ;;; Emacs initialization and configuration
-(add-to-list 'load-path "~/.emacs.d/lisp")
+(add-to-list 'load-path (expand-file-name "lisp" user-emacs-directory))
 
 ;;; Code:
 (load-file (expand-file-name "lisp/core-emacs-config.el" user-emacs-directory))

@@ -12,18 +12,14 @@
 (customize-set-variable 'load-prefer-newer noninteractive)
 
 (setopt frame-resize-pixelwise t)
-(tool-bar-mode -1)                      ; All these tools are in the menu-bar anyway
-(setopt default-frame-alist '((fullscreen . maximized)
 
-                            ;; You can turn off scroll bars by uncommenting these lines:
-                            ;; (vertical-scroll-bars . nil)
-                            ;; (horizontal-scroll-bars . nil)
-
-                            ;; Setting the face in here prevents flashes of
-                            ;; color as the theme gets activated
-                            (background-color . "#000000")
-                            (ns-appearance . dark)
-                            (ns-transparent-titlebar . t)))
+(setopt default-frame-alist
+        '((fullscreen . maximized)
+          ;; Setting the face in here prevents flashes of
+          ;; color as the theme gets activated
+          (background-color . "#000000")
+          (ns-appearance . dark)
+          (ns-transparent-titlebar . t)))
 
 ;;; package configuration
 (require 'package)
@@ -41,10 +37,6 @@
 
 (package-initialize)
 
-; fetch the list of packages available
-(unless package-archive-contents
-  (package-refresh-contents))
-
 (setopt use-package-always-ensure t)
 
 (setopt load-prefer-newer t)
@@ -57,8 +49,18 @@
   :ensure t
   :demand t
   :config
-  ;; Set `compile-angel-verbose' to nil to silence compile-angel.
-  (setopt compile-angel-verbose t)
+  ;; The following disables compilation of packages during installation;
+  ;; compile-angel will handle it.
+  (setq package-native-compile nil)
+
+  ;; Set `compile-angel-verbose' to nil to disable compile-angel messages.
+  ;; (When set to nil, compile-angel won't show which file is being compiled.)
+  (setq compile-angel-verbose t)
+
+  (push "/init.el" compile-angel-exclude-files)
+  (push "/early-init.el" compile-angel-exclude-files)
+  (push "lisp/vn.el" compile-angel-exclude-files)
+  (push "lisp/external-packages-config.el" compile-angel-exclude-files)
 
   (compile-angel-on-load-mode)
   (add-hook 'emacs-lisp-mode-hook #'compile-angel-on-save-local-mode))

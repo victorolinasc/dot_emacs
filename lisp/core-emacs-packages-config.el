@@ -19,6 +19,9 @@
 
 (use-package which-key :ensure nil :config (which-key-mode))
 
+(use-package emacs-lisp-mode :ensure nil :mode "\\.el\\'")
+
+
 (use-package
  dired
  :ensure nil
@@ -51,14 +54,15 @@
  (kotlin-ts-mode . eglot-ensure)
  (terraform-mode . eglot-ensure)
  (dart-mode . eglot-ensure)
- (before-save . eglot-format)
+ (java-ts-mode . eglot-ensure)
+
  :bind
  ("C-M-i" . eglot-code-actions)
  ("s-r" . eglot-rename)
- :config
- (fset #'jsonrpc--log-event #'ignore)
- (add-to-list 'eglot-server-programs '((elixir-ts-mode heex-ts-mode elixir-mode) . ("elixir-ls")))
- (add-to-list 'eglot-server-programs '((ponylang-ts-mode ponylang-mode) . ("pony-lsp")))
+ :config (fset #'jsonrpc--log-event #'ignore)
+
+ (add-to-list
+  'eglot-server-programs '((elixir-ts-mode heex-ts-mode elixir-mode) . ("expert" "--stdio")))
  (add-to-list 'eglot-server-programs '((toml-ts-mode) . ("taplo" "lsp" "stdio")))
  (add-to-list
   'eglot-server-programs '((text-mode markdown-mode gfm-mode) . ("harper-ls" "--stdio")))
@@ -66,7 +70,9 @@
   'eglot-server-programs
   '((rust-ts-mode rust-mode)
     .
-    ("rust-analyzer" :initializationOptions (:check (:command "clippy"))))))
+    ("rust-analyzer" :initializationOptions (:check (:command "clippy")))))
+ (add-to-list
+  'eglot-server-programs `(python-base-mode . ,(eglot-alternatives '(("uv" "run" "ty" "server"))))))
 
 (use-package dockerfile-ts-mode :ensure nil :defer t :mode "Dockerfile\\'")
 
@@ -79,3 +85,5 @@
  :bind
  ("C-{" . hs-hide-block)
  ("C-}" . hs-show-block))
+
+(use-package json-ts-mode :ensure nil :hook (before-save . json-pretty-print-buffer))

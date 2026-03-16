@@ -17,12 +17,12 @@
 
  :init (exec-path-from-shell-initialize))
 
-(use-package
- treesit-auto
- :custom (treesit-auto-install 'prompt)
- :config
- (treesit-auto-add-to-auto-mode-alist 'all)
- (global-treesit-auto-mode))
+; (use-package
+;  treesit-auto
+;  :custom (treesit-auto-install 'prompt)
+;  :config
+;  (treesit-auto-add-to-auto-mode-alist 'all)
+;  (global-treesit-auto-mode))
 
 (use-package
  helpful
@@ -262,13 +262,12 @@
 
 (use-package magit :bind ("C-c m s" . magit-status))
 
-(use-package restclient :defer t :mode "\\.restclient\\'")
-(use-package ob-elixir :defer t)
 (use-package yasnippet :diminish yas-minor-mode :config (yas-global-mode 1))
 (use-package yasnippet-snippets :after (yasnippet))
 
 (use-package
  elixir-ts-mode
+ :after eglot
  :hook
  (elixir-ts-mode
   .
@@ -281,7 +280,8 @@
     (push '("<-" . ?\u2190) prettify-symbols-alist)
     (push '("->" . ?\u2192) prettify-symbols-alist)
     (push '("<-" . ?\u2190) prettify-symbols-alist)
-    (push '("|>" . ?\u25B7) prettify-symbols-alist))))
+    (push '("|>" . ?\u25B7) prettify-symbols-alist)))
+ (before-save . eglot-format))
 
 (use-package
  exunit
@@ -292,9 +292,6 @@
  ("C-c e u a" . exunit-verify-all-in-umbrella)
  ("C-c e a" . exunit-verify-all)
  ("C-c e l" . exunit-rerun))
-
-;; On a clean build, we need to call 'all-the-icons-install-fonts' function
-(use-package all-the-icons :if (display-graphic-p))
 
 (use-package erlang :defer t)
 
@@ -328,7 +325,7 @@
 
 (use-package
  org
- :bind (("C-c a" . org-agenda))
+ :bind (("C-c a" . org-agenda) ("C-c l" . org-capture))
  :custom
  (org-hide-leading-stars t)
  (org-list-allow-alphabetical t)
@@ -339,7 +336,6 @@
  (org-pretty-entities-include-sub-superscripts nil)
  (org-export-with-sub-superscripts nil "Disable sub and superscripts in exports only")
  (org-ditaa-jar-path (expand-file-name "vendor/ditaa0_9.jar" user-emacs-directory))
- (org-bulle)
  ;  (org-bullets-bullet-list (quote ("◉" "◆" "✚" "☀" "○")))
  (org-plantuml-jar-path (expand-file-name "vendor/plantuml.1.2019.7.jar" user-emacs-directory))
  :config
@@ -358,11 +354,11 @@
  docker
  :pin melpa
  :bind ("C-c d" . docker)
+ :init (setenv "PODMAN_COMPOSE_PROVIDER" "/usr/bin/podman-compose")
+ (setq
+  docker-command "podman"
+  docker-compose-command "podman compose")
  :hook (docker-mode . (lambda () (display-line-numbers-mode -1))))
-
-(use-package kubernetes :commands (kubernetes-overview))
-
-(use-package kubed :config (keymap-global-set "C-c k" 'kubed-prefix-map))
 
 (use-package graphviz-dot-mode)
 
@@ -373,23 +369,7 @@
 
 (use-package mermaid-mode)
 
-(use-package
- solaire-mode
- :init (solaire-global-mode +1)
- :hook (dashboard-before-initialize . solaire-mode))
-
-(use-package kotlin-ts-mode :mode ("\\.kt\\'" "\\.kts\\'"))
-
-(use-package
- eglot-java
- :custom (eglot-java-java-program (expand-file-name "~/.local/share/mise/shims/java"))
- :bind
- ("C-c l n" . eglot-java-file-new)
- ("C-c l x" . eglot-java-run-main)
- ("C-c l t" . eglot-java-run-test)
- ("C-c l N" . eglot-java-project-new)
- ("C-c l T" . eglot-java-project-build-task)
- ("C-c l R" . eglot-java-project-build-refresh))
+(use-package solaire-mode :init (solaire-global-mode +1))
 
 (use-package rust-mode :init (setopt rust-mode-treesitter-derive t))
 
@@ -403,24 +383,11 @@
  (setopt rustic-cargo-nextest-exec-command '("nextest" "run" "--no-capture")))
 
 (use-package
- pet
- :pin melpa
- ;; :ensure-system-package (dasel sqlite3)
- :config
- (add-hook
-  'python-base-mode-hook
-  (lambda ()
-    (setq-local
-     python-shell-interpreter (pet-executable-find "python")
-     python-shell-virtualenv-root (pet-virtualenv-root))
-
-    (pet-eglot-setup)
-    (pet-dape-setup)
-    (eglot-ensure)
-
-    (setq-local python-pytest-executable (pet-executable-find "pytest"))))
-
- (add-hook 'python-base-mode-hook 'pet-mode -10))
+ eglot-python-preset
+ :after eglot
+ :custom
+ (eglot-python-preset-lsp-server 'ty) ; or 'basedpyright
+ :config (eglot-python-preset-setup))
 
 (use-package python-pytest :bind ("C-x t f" . python-pytest-function))
 
@@ -501,27 +468,28 @@
 
 (use-package
  ultra-scroll
- :vc (:url "https://github.com/jdtsmith/ultra-scroll")
  :init
  (setopt
   scroll-conservatively 101 ; important!
   scroll-margin 0)
  :config (ultra-scroll-mode 1))
 
-(use-package treesit-fold-indicators)
-
 (use-package
  treesit-fold
  :vc
  (:url "https://github.com/emacs-tree-sitter/treesit-fold.git" :rev :newest :branch "master")
  :init (setopt treesit-fold-line-count-show t)
- :hook (prog-mode . treesit-fold-mode))
+ :hook (prog-mode . treesit-fold-mode)
+ :bind
+ ("C-{" . treesit-fold-close)
+ ("C-}" . treesit-fold-close))
 
 (use-package
  hurl-mode
  :ensure nil
  :vc (:url "https://github.com/JasZhe/hurl-mode.git" :rev :newest :branch "main")
- :mode "\\.hurl\\'")
+ :mode "\\.hurl\\'"
+ :config (setq hurl-mode-use-json-ts-mode t))
 
 (use-package just-ts-mode)
 (use-package justl)
@@ -532,20 +500,6 @@
  ("M-n" . eldoc-box-scroll-up)
  ("M-p" . eldoc-box-scroll-down)
  ("C-h ." . eldoc-box-help-at-point))
-
-(use-package
- dashboard
- :pin melpa
- :config (dashboard-setup-startup-hook)
- :init
- (setopt
-  dashboard-banner-logo-title "Olinasci Emacs"
-  dashboard-startup-banner 'logo
-  dashboard-icon-type 'nerd-icons
-  dashboard-set-heading-icons t
-  dashboard-set-file-icons t
-  dashboard-projects-backend 'project-el
-  dashboard-items '((recents . 5) (projects . 5) (agenda . 5))))
 
 (use-package
  uniline
@@ -561,8 +515,56 @@
  :config
  (setopt doom-themes-treemacs-theme "doom-colors")
  (setopt doom-treemacs-enable-variable-pitch t)
- (load-theme 'doom-monokai-pro t)
+ (load-theme 'doom-one t)
  (doom-themes-treemacs-config))
+
+(use-package
+ ponylang-mode
+ :load-path "~/Projects/ponylang-mode/"
+ :mode "\\.pony\\'"
+ :hook (ponylang-mode . eglot-ensure)
+ :init
+ (add-to-list 'eglot-server-programs '((ponylang-ts-mode ponylang-mode) . ("pony-lsp"))))
+
+(use-package eca)
+
+(use-package
+ ellama
+ :init (setopt ellama-language "English") (require 'llm-ollama)
+ (setopt ellama-provider
+         (make-llm-ollama :chat-model "qwen3-coder:30b" :embedding-model "qwen3-coder:30b")))
+
+(use-package
+ gptel
+ :bind
+ (("C-c g g" . gptel)
+  ("C-c g s" . gptel-send)
+  ("C-c g m" . gptel-menu)
+  ("C-c g a" . gptel-add)
+  ("C-c g r" . gptel-rewrite))
+ :config
+ ;; Claude backend (default)
+ (setq gptel-backend
+       (gptel-make-anthropic
+        "Claude"
+        :stream t
+        :key
+        #'gptel-api-key-from-auth-source
+        "api.anthropic.com"
+        "redalien-emacs-key"))
+ (setq gptel-model 'claude-sonnet-4-20250514)
+
+ ;; Ollama backend for local models
+ (gptel-make-ollama "Ollama" :host "localhost:11434" :stream t :models '(qwen3-coder:30b))
+
+ ;; Default response mode
+ (setq gptel-default-mode 'org-mode))
+
+(use-package
+ agent-shell
+ :config
+ (agent-shell-make-environment-variables
+  "ANTHROPIC_API_KEY" (auth-source-pass-get "api.anthropic.com" "redalien-emacs-key")))
 
 (provide 'external-packages-config)
 ;;; external-packages-config.el ends here

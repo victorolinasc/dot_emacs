@@ -14,6 +14,7 @@
  (prog-mode . (lambda () (display-line-numbers-mode 1)))
  (text-mode . (lambda () (display-line-numbers-mode 1)))
  (prog-mode . editorconfig-mode)
+ (before-save . (lambda () (delete-trailing-whitespace)))
  :config (setopt auto-revert-avoid-polling t)
  ;; Set custom file early
  (setopt custom-file (expand-file-name "lisp/.custom.el" user-emacs-directory))
@@ -52,6 +53,7 @@
   column-number-mode t
   size-indication-mode t
   delete-selection-mode t
+  history-delete-duplicates t
   menu-bar-mode nil
   tool-bar-mode nil
   scroll-bar-mode nil)
@@ -119,7 +121,6 @@
          '((bash "https://github.com/tree-sitter/tree-sitter-bash")
            (css "https://github.com/tree-sitter/tree-sitter-css")
            (dockerfile "https://github.com/camdencheek/tree-sitter-dockerfile")
-           (elisp "https://github.com/Wilfred/tree-sitter-elisp")
            (heex "https://github.com/phoenixframework/tree-sitter-heex")
            (elixir "https://github.com/elixir-lang/tree-sitter-elixir")
            (go "https://github.com/tree-sitter/tree-sitter-go")
@@ -127,6 +128,7 @@
            (java "https://github.com/tree-sitter/tree-sitter-java")
            (javascript "https://github.com/tree-sitter/tree-sitter-javascript" "master" "src")
            (json "https://github.com/tree-sitter/tree-sitter-json")
+           (just "https://github.com/casey/tree-sitter-just")
            (kotlin "https://github.com/fwcd/tree-sitter-kotlin")
            (make "https://github.com/alemuller/tree-sitter-make")
            (markdown "https://github.com/ikatyang/tree-sitter-markdown")
@@ -142,7 +144,9 @@
 
  (add-to-list 'major-mode-remap-alist '(yaml-mode . yaml-ts-mode))
  (add-to-list 'major-mode-remap-alist '(rust-mode . rust-ts-mode))
- (add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode)))
+ (add-to-list 'major-mode-remap-alist '(python-mode . python-ts-mode))
+ (add-to-list 'major-mode-remap-alist '(conf-toml-mode . toml-ts-mode))
+ (add-to-list 'major-mode-remap-alist '(java-mode . java-ts-mode)))
 
 (use-package
  emacs
